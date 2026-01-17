@@ -116,6 +116,11 @@ document.addEventListener('DOMContentLoaded', function() {
             renderResources();
         }
 
+        // If Analytics is clicked, render analytics
+        if (viewName === 'analytics') {
+            renderAnalytics();
+        }
+
         // Update active state on sidebar links
         updateActiveSidebarLink(clickedLink);
     });
@@ -447,4 +452,224 @@ function handleBookingSubmit(event) {
     // Close modal and refresh view
     closeBookingModal();
     renderResources();
+}
+
+// Get today's date in YYYY-MM-DD format
+function getTodayDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Render analytics view
+function renderAnalytics() {
+    const container = document.getElementById('analytics-view');
+    if (!container) return;
+    
+    // Clear existing content except heading
+    const heading = container.querySelector('h2');
+    container.innerHTML = '';
+    if (heading) {
+        container.appendChild(heading);
+    }
+    
+    // Load resources
+    const resources = loadResources();
+    
+    // Collect all bookings
+    let allBookings = [];
+    resources.forEach(function(resource) {
+        if (resource.bookings && resource.bookings.length > 0) {
+            resource.bookings.forEach(function(booking) {
+                allBookings.push({
+                    ...booking,
+                    resourceId: resource.id,
+                    resourceName: resource.name
+                });
+            });
+        }
+    });
+    
+    // Check if there are any bookings
+    if (allBookings.length === 0) {
+        const message = document.createElement('p');
+        message.textContent = 'No bookings yet. Start booking resources to see analytics!';
+        message.style.color = '#6b7280';
+        message.style.marginTop = '2rem';
+        container.appendChild(message);
+        return;
+    }
+    
+    // Calculate metrics
+    const todayDate = getTodayDate();
+    
+    // 1. Total bookings today
+    const todayBookings = allBookings.filter(b => b.date === todayDate);
+    const totalToday = todayBookings.length;
+    
+    // 2. Most booked resource
+    const resourceSlotCounts = {};
+    resources.forEach(function(resource) {
+        let totalSlots = 0;
+        if (resource.bookings) {
+            resource.bookings.forEach(function(booking) {
+                if (booking.slots) {
+                    totalSlots += booking.slots.length;
+                }
+            });
+        }
+        resourceSlotCounts[resource.id] = {
+            name: resource.name,
+            slots: totalSlots
+        };
+    });
+    
+    let mostBooked = { name: 'None', slots: 0 };
+    Object.values(resourceSlotCounts).forEach(function(resource) {
+        if (resource.slots > mostBooked.slots) {
+            mostBooked = resource;
+        }
+    });
+    
+    // 3. Peak slot
+    const slotCounts = {};
+    allBookings.forEach(function(booking) {
+        if (booking.slots) {
+            booking.slots.forEach(function(slot) {
+                slotCounts[slot] = (slotCounts[slot] || 0) + 1;
+            });
+        }
+    });
+    
+    let peakSlot = { time: 'None', count: 0 };
+    Object.keys(slotCounts).forEach(function(slot) {
+        if (slotCounts[slot] > peakSlot.count) {
+            peakSlot = { time: slot, count: slotCounts[slot] };
+        }
+    });
+    
+    // Create metrics grid
+    const metricsGrid = document.createElement('div');
+    metricsGrid.className = 'metrics-grid';
+    
+    // Metric 1: Bookings Today
+    const card1 = createMetricCard('Bookings Today', totalToday, '📅');
+    
+    // Metric 2: Most Booked Resource
+    const card2 = createMetricCard('Most Booked Resource', `${mostBooked.name} (${mostBooked.slots} slots)`, '🏆');
+    
+    // Metric 3: Peak Slot
+    const card3 = createMetricCard('Peak Time Slot', `${peakSlot.time} (${peakSlot.count} bookings)`, '⏰');
+    
+    metricsGrid.appendChild(card1);
+    metricsGrid.appendChild(card2);
+    metricsGrid.appendChild(card3);
+    
+    container.appendChild(metricsGrid);
+    
+    // Add booking history section
+    const historySection = document.createElement('div');
+    historySection.className = 'history-section';
+    
+    const historyTitle = document.createElement('h3');
+    historyTitle.textContent = 'Booking History';
+    historyTitle.className = 'history-title';
+    historySection.appendChild(historyTitle);
+    
+    // Sort bookings by date (newest first)
+    allBookings.sort(function(a, b) {
+        return new Date(b.date) - new Date(a.date);
+    });
+    
+    // Create history list
+    const historyList = document.createElement('div');
+    historyList.className = 'history-list';
+    
+    allBookings.forEach(function(booking) {
+        const historyItem = createHistoryItem(booking);
+        historyList.appendChild(historyItem);
+    });
+    
+    historySection.appendChild(historyList);
+    container.appendChild(historySection);
+}
+
+// Create a booking history item
+function createHistoryItem(booking) {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    
+    const header = document.createElement('div');
+    header.className = 'history-header';
+    
+    const resourceName = document.createElement('div');
+    resourceName.className = 'history-resource';
+    resourceName.textContent = booking.resourceName;
+    
+    const date = document.createElement('div');
+    date.className = 'history-date';
+    const bookingDate = new Date(booking.date);
+    date.textContent = bookingDate.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+    });
+    
+    header.appendChild(resourceName);
+    header.appendChild(date);
+    
+    const details = document.createElement('div');
+    details.className = 'history-details';
+    
+    const user = document.createElement('div');
+    user.className = 'history-user';
+    user.innerHTML = `<strong>User:</strong> ${booking.user}`;
+    
+    const slots = document.createElement('div');
+    slots.className = 'history-slots';
+    if (booking.slots && booking.slots.length > 0) {
+        const slotsText = booking.slots.length > 3 
+            ? `${booking.slots.slice(0, 3).join(', ')}... (+${booking.slots.length - 3} more)` 
+            : booking.slots.join(', ');
+        slots.innerHTML = `<strong>Slots:</strong> ${slotsText}`;
+    }
+    
+    details.appendChild(user);
+    details.appendChild(slots);
+    
+    item.appendChild(header);
+    item.appendChild(details);
+    
+    return item;
+}
+
+// Create a metric card
+function createMetricCard(label, value, icon) {
+    const card = document.createElement('div');
+    card.className = 'metric-card';
+    
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'metric-icon';
+    iconDiv.textContent = icon;
+    
+    const content = document.createElement('div');
+    content.className = 'metric-content';
+    
+    const labelEl = document.createElement('div');
+    labelEl.className = 'metric-label';
+    labelEl.textContent = label;
+    
+    const valueEl = document.createElement('div');
+    valueEl.className = 'metric-value';
+    valueEl.textContent = value;
+    
+    content.appendChild(labelEl);
+    content.appendChild(valueEl);
+    
+    card.appendChild(iconDiv);
+    card.appendChild(content);
+    
+    return card;
 }
