@@ -213,6 +213,79 @@ body {
     display: none;
 }
 
+/* Resources Grid */
+.resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+/* Resource Card */
+.resource-card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.resource-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.resource-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+.resource-type,
+.resource-location {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.resource-status {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    padding: 0.25rem 0;
+}
+
+.status-available {
+    color: #10b981;
+}
+
+.status-booked {
+    color: #ef4444;
+}
+
+.book-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.book-btn:hover:not(:disabled) {
+    background-color: #1d4ed8;
+}
+
+.book-btn:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
 /* Fade in animation for view transitions */
 @keyframes fadeIn {
     from {
