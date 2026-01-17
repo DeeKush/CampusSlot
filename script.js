@@ -61,6 +61,9 @@ const defaultResources = [
 // Global variable to track the currently active view
 let currentView = 'dashboard';
 
+// Global variable to store the resource ID being booked
+let currentResourceId = null;
+
 // Wait for the page to load completely
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -112,6 +115,45 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update active state on sidebar links
         updateActiveSidebarLink(clickedLink);
     });
+
+    // Event delegation for booking buttons
+    const resourcesView = document.getElementById('resources-view');
+    if (resourcesView) {
+        resourcesView.addEventListener('click', function(event) {
+            const bookBtn = event.target.closest('.book-btn');
+            if (bookBtn && !bookBtn.disabled) {
+                currentResourceId = parseInt(bookBtn.dataset.id);
+                openBookingModal();
+            }
+        });
+    }
+
+    // Modal close handlers
+    const closeModalBtn = document.getElementById('close-modal');
+    const cancelBtn = document.getElementById('cancel-booking');
+    const modal = document.getElementById('booking-modal');
+
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', closeBookingModal);
+    }
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeBookingModal);
+    }
+
+    if (modal) {
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeBookingModal();
+            }
+        });
+    }
+
+    // Form submission handler
+    const bookingForm = document.getElementById('booking-form');
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', handleBookingSubmit);
+    }
 });
 
 // Function to hide all view sections
@@ -204,4 +246,103 @@ function renderResources() {
     });
     
     container.appendChild(grid);
+}
+
+// Open booking modal
+function openBookingModal() {
+    const modal = document.getElementById('booking-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.getElementById('error-message').classList.add('hidden');
+    }
+}
+
+// Close booking modal
+function closeBookingModal() {
+    const modal = document.getElementById('booking-modal');
+    const form = document.getElementById('booking-form');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    if (form) {
+        form.reset();
+    }
+    document.getElementById('error-message').classList.add('hidden');
+    currentResourceId = null;
+}
+
+// Convert time string to minutes
+function convertTimeToMinutes(timeString) {
+    const parts = timeString.split(':');
+    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+}
+
+// Check for booking overlaps
+function hasOverlap(newStart, newEnd, existingStart, existingEnd) {
+    return newStart < existingEnd && newEnd > existingStart;
+}
+
+// Handle booking form submission
+function handleBookingSubmit(event) {
+    event.preventDefault();
+    
+    const dateInput = document.getElementById('booking-date').value;
+    const startTimeInput = document.getElementById('start-time').value;
+    const endTimeInput = document.getElementById('end-time').value;
+    const errorMsg = document.getElementById('error-message');
+    
+    // Validate times
+    if (startTimeInput >= endTimeInput) {
+        errorMsg.textContent = 'End time must be after start time';
+        errorMsg.classList.remove('hidden');
+        return;
+    }
+    
+    const timeString = startTimeInput + '-' + endTimeInput;
+    
+    // Create booking object
+    const newBooking = {
+        user: 'Student',
+        date: dateInput,
+        time: timeString
+    };
+    
+    // Load resources
+    const resources = loadResources();
+    const resource = resources.find(r => r.id === currentResourceId);
+    
+    if (!resource) {
+        errorMsg.textContent = 'Resource not found';
+        errorMsg.classList.remove('hidden');
+        return;
+    }
+    
+    // Check for conflicts
+    const newStartMinutes = convertTimeToMinutes(startTimeInput);
+    const newEndMinutes = convertTimeToMinutes(endTimeInput);
+    
+    for (let booking of resource.bookings) {
+        if (booking.date === dateInput) {
+            const timeParts = booking.time.split('-');
+            const existingStart = convertTimeToMinutes(timeParts[0]);
+            const existingEnd = convertTimeToMinutes(timeParts[1]);
+            
+            if (hasOverlap(newStartMinutes, newEndMinutes, existingStart, existingEnd)) {
+                errorMsg.textContent = 'This time slot conflicts with an existing booking';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+        }
+    }
+    
+    // Save booking
+    resource.bookings.push(newBooking);
+    resource.status = 'booked';
+    
+    // Update localStorage
+    localStorage.setItem('campus_resources', JSON.stringify(resources));
+    
+    // Close modal and refresh view
+    closeBookingModal();
+    renderResources();
 }

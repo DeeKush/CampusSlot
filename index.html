@@ -81,6 +81,35 @@
         </main>
     </div>
 
+    <!-- Booking Modal -->
+    <div id="booking-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Book Resource</h3>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            <form id="booking-form">
+                <div class="form-group">
+                    <label for="booking-date">Date:</label>
+                    <input type="date" id="booking-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="start-time">Start Time:</label>
+                    <input type="time" id="start-time" required>
+                </div>
+                <div class="form-group">
+                    <label for="end-time">End Time:</label>
+                    <input type="time" id="end-time" required>
+                </div>
+                <div class="error-message hidden" id="error-message"></div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancel-booking">Cancel</button>
+                    <button type="submit" class="btn-submit">Confirm Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
