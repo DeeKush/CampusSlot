@@ -64,6 +64,10 @@ let currentView = 'dashboard';
 // Global variable to store the resource ID being booked
 let currentResourceId = null;
 
+// Global variables for slot-based booking
+let startSlot = null;
+let endSlot = null;
+
 // Wait for the page to load completely
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -252,8 +256,11 @@ function renderResources() {
 function openBookingModal() {
     const modal = document.getElementById('booking-modal');
     if (modal) {
+        startSlot = null;
+        endSlot = null;
         modal.classList.remove('hidden');
         document.getElementById('error-message').classList.add('hidden');
+        renderSlots();
     }
 }
 
@@ -268,18 +275,115 @@ function closeBookingModal() {
         form.reset();
     }
     document.getElementById('error-message').classList.add('hidden');
+    document.getElementById('slots-container').innerHTML = '';
     currentResourceId = null;
+    startSlot = null;
+    endSlot = null;
 }
 
-// Convert time string to minutes
-function convertTimeToMinutes(timeString) {
-    const parts = timeString.split(':');
-    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+// Generate time slots from 9:00 AM to 8:00 PM (30-min intervals)
+function generateSlots() {
+    const slots = [];
+    const startHour = 9;
+    const endHour = 20;
+    
+    for (let hour = startHour; hour <= endHour; hour++) {
+        for (let minute = 0; minute < 60; minute += 30) {
+            if (hour === endHour && minute > 0) break;
+            
+            const period = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour > 12 ? hour - 12 : hour;
+            const displayMinute = minute.toString().padStart(2, '0');
+            slots.push(`${displayHour.toString().padStart(2, '0')}:${displayMinute} ${period}`);
+        }
+    }
+    
+    return slots;
 }
 
-// Check for booking overlaps
-function hasOverlap(newStart, newEnd, existingStart, existingEnd) {
-    return newStart < existingEnd && newEnd > existingStart;
+// Render slots in the modal
+function renderSlots() {
+    const container = document.getElementById('slots-container');
+    container.innerHTML = '';
+    
+    const slots = generateSlots();
+    
+    slots.forEach(function(slot) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'slot-btn';
+        button.textContent = slot;
+        button.dataset.slot = slot;
+        
+        button.addEventListener('click', function() {
+            handleSlotClick(slot);
+        });
+        
+        container.appendChild(button);
+    });
+}
+
+// Handle slot button clicks
+function handleSlotClick(slot) {
+    if (startSlot === null) {
+        startSlot = slot;
+        updateSlotSelection();
+    } else if (endSlot === null) {
+        endSlot = slot;
+        updateSlotSelection();
+    } else {
+        startSlot = slot;
+        endSlot = null;
+        updateSlotSelection();
+    }
+}
+
+// Update visual selection of slots
+function updateSlotSelection() {
+    const allSlots = generateSlots();
+    const slotButtons = document.querySelectorAll('.slot-btn');
+    
+    slotButtons.forEach(function(btn) {
+        btn.classList.remove('selected', 'in-range');
+    });
+    
+    if (startSlot === null) return;
+    
+    const startIndex = allSlots.indexOf(startSlot);
+    
+    if (endSlot === null) {
+        slotButtons[startIndex].classList.add('selected');
+    } else {
+        const endIndex = allSlots.indexOf(endSlot);
+        const minIndex = Math.min(startIndex, endIndex);
+        const maxIndex = Math.max(startIndex, endIndex);
+        
+        for (let i = minIndex; i <= maxIndex; i++) {
+            if (i === minIndex || i === maxIndex) {
+                slotButtons[i].classList.add('selected');
+            } else {
+                slotButtons[i].classList.add('in-range');
+            }
+        }
+    }
+}
+
+// Get selected slots as array
+function getSelectedSlots() {
+    if (startSlot === null) return [];
+    
+    const allSlots = generateSlots();
+    const startIndex = allSlots.indexOf(startSlot);
+    
+    if (endSlot === null) {
+        return [startSlot];
+    }
+    
+    const endIndex = allSlots.indexOf(endSlot);
+    const minIndex = Math.min(startIndex, endIndex);
+    const maxIndex = Math.max(startIndex, endIndex);
+    
+    return allSlots.slice(minIndex, maxIndex + 1);
 }
 
 // Handle booking form submission
@@ -287,24 +391,27 @@ function handleBookingSubmit(event) {
     event.preventDefault();
     
     const dateInput = document.getElementById('booking-date').value;
-    const startTimeInput = document.getElementById('start-time').value;
-    const endTimeInput = document.getElementById('end-time').value;
     const errorMsg = document.getElementById('error-message');
     
-    // Validate times
-    if (startTimeInput >= endTimeInput) {
-        errorMsg.textContent = 'End time must be after start time';
+    if (!dateInput) {
+        errorMsg.textContent = 'Please select a date';
         errorMsg.classList.remove('hidden');
         return;
     }
     
-    const timeString = startTimeInput + '-' + endTimeInput;
+    const selectedSlots = getSelectedSlots();
+    
+    if (selectedSlots.length === 0) {
+        errorMsg.textContent = 'Please select at least one time slot';
+        errorMsg.classList.remove('hidden');
+        return;
+    }
     
     // Create booking object
     const newBooking = {
         user: 'Student',
         date: dateInput,
-        time: timeString
+        slots: selectedSlots
     };
     
     // Load resources
@@ -318,19 +425,14 @@ function handleBookingSubmit(event) {
     }
     
     // Check for conflicts
-    const newStartMinutes = convertTimeToMinutes(startTimeInput);
-    const newEndMinutes = convertTimeToMinutes(endTimeInput);
-    
     for (let booking of resource.bookings) {
         if (booking.date === dateInput) {
-            const timeParts = booking.time.split('-');
-            const existingStart = convertTimeToMinutes(timeParts[0]);
-            const existingEnd = convertTimeToMinutes(timeParts[1]);
-            
-            if (hasOverlap(newStartMinutes, newEndMinutes, existingStart, existingEnd)) {
-                errorMsg.textContent = 'This time slot conflicts with an existing booking';
-                errorMsg.classList.remove('hidden');
-                return;
+            for (let slot of selectedSlots) {
+                if (booking.slots && booking.slots.includes(slot)) {
+                    errorMsg.textContent = 'One or more selected slots are already booked';
+                    errorMsg.classList.remove('hidden');
+                    return;
+                }
             }
         }
     }
