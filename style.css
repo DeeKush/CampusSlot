@@ -191,6 +191,40 @@ body {
     max-width: 1200px;
 }
 
+/* View Sections */
+.view-section {
+    animation: fadeIn 0.3s ease-in;
+}
+
+.view-section h2 {
+    font-size: 1.75rem;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+.view-section p {
+    font-size: 1rem;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+/* Hidden class to hide sections */
+.hidden {
+    display: none;
+}
+
+/* Fade in animation for view transitions */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Responsive Design */
 @media screen and (max-width: 768px) {
     .navbar {
