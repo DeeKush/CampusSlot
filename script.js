@@ -116,6 +116,11 @@ document.addEventListener('DOMContentLoaded', function() {
             renderResources();
         }
 
+        // If My Bookings is clicked, render bookings
+        if (viewName === 'bookings') {
+            renderBookings();
+        }
+
         // If Analytics is clicked, render analytics
         if (viewName === 'analytics') {
             renderAnalytics();
@@ -164,6 +169,23 @@ document.addEventListener('DOMContentLoaded', function() {
         bookingForm.addEventListener('submit', handleBookingSubmit);
     }
 });
+
+// Show message in a container
+function showMessage(container, text, type) {
+    // Remove any existing messages
+    const existingMsg = container.querySelector('.message');
+    if (existingMsg) {
+        existingMsg.remove();
+    }
+    
+    // Create new message element
+    const message = document.createElement('div');
+    message.className = `message msg-${type}`;
+    message.textContent = text;
+    
+    // Insert at the beginning of container
+    container.insertBefore(message, container.firstChild.nextSibling);
+}
 
 // Function to hide all view sections
 function hideAllViews() {
@@ -249,12 +271,111 @@ function renderResources() {
     // Load and render resources
     const resources = loadResources();
     
+    if (resources.length === 0) {
+        showMessage(container, 'No resources available right now.', 'info');
+        return;
+    }
+    
     resources.forEach(function(resource) {
         const card = createResourceCard(resource);
         grid.appendChild(card);
     });
     
     container.appendChild(grid);
+}
+
+// Render bookings view
+function renderBookings() {
+    const container = document.getElementById('bookings-view');
+    if (!container) return;
+    
+    // Clear existing content except heading
+    const heading = container.querySelector('h2');
+    container.innerHTML = '';
+    if (heading) {
+        container.appendChild(heading);
+    }
+    
+    // Load resources and get user bookings
+    const resources = loadResources();
+    const userBookings = [];
+    
+    resources.forEach(function(resource) {
+        if (resource.bookings && resource.bookings.length > 0) {
+            resource.bookings.forEach(function(booking) {
+                if (booking.user === 'Student') {
+                    userBookings.push({
+                        ...booking,
+                        resourceName: resource.name,
+                        resourceId: resource.id
+                    });
+                }
+            });
+        }
+    });
+    
+    if (userBookings.length === 0) {
+        showMessage(container, 'You have no bookings yet.', 'info');
+        return;
+    }
+    
+    // Sort by date (newest first)
+    userBookings.sort(function(a, b) {
+        return new Date(b.date) - new Date(a.date);
+    });
+    
+    // Create bookings list
+    const bookingsList = document.createElement('div');
+    bookingsList.className = 'bookings-list';
+    
+    userBookings.forEach(function(booking) {
+        const bookingCard = createBookingCard(booking);
+        bookingsList.appendChild(bookingCard);
+    });
+    
+    container.appendChild(bookingsList);
+}
+
+// Create a booking card
+function createBookingCard(booking) {
+    const card = document.createElement('div');
+    card.className = 'booking-card';
+    
+    const header = document.createElement('div');
+    header.className = 'booking-header';
+    
+    const resourceName = document.createElement('h3');
+    resourceName.textContent = booking.resourceName;
+    
+    const date = document.createElement('div');
+    date.className = 'booking-date';
+    const bookingDate = new Date(booking.date);
+    date.textContent = bookingDate.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+    });
+    
+    header.appendChild(resourceName);
+    header.appendChild(date);
+    
+    const slotsContainer = document.createElement('div');
+    slotsContainer.className = 'booking-slots';
+    
+    if (booking.slots && booking.slots.length > 0) {
+        const slotsLabel = document.createElement('strong');
+        slotsLabel.textContent = 'Time Slots: ';
+        slotsContainer.appendChild(slotsLabel);
+        
+        const slotsText = document.createElement('span');
+        slotsText.textContent = booking.slots.join(', ');
+        slotsContainer.appendChild(slotsText);
+    }
+    
+    card.appendChild(header);
+    card.appendChild(slotsContainer);
+    
+    return card;
 }
 
 // Open booking modal
@@ -407,9 +528,22 @@ function handleBookingSubmit(event) {
     const selectedSlots = getSelectedSlots();
     
     if (selectedSlots.length === 0) {
-        errorMsg.textContent = 'Please select at least one time slot';
+        errorMsg.textContent = 'Please select a start and end slot';
         errorMsg.classList.remove('hidden');
         return;
+    }
+    
+    // Validate slot range
+    if (startSlot && endSlot) {
+        const allSlots = generateSlots();
+        const startIndex = allSlots.indexOf(startSlot);
+        const endIndex = allSlots.indexOf(endSlot);
+        
+        if (startIndex > endIndex) {
+            errorMsg.textContent = 'Please select a valid time range';
+            errorMsg.classList.remove('hidden');
+            return;
+        }
     }
     
     // Create booking object
@@ -494,11 +628,7 @@ function renderAnalytics() {
     
     // Check if there are any bookings
     if (allBookings.length === 0) {
-        const message = document.createElement('p');
-        message.textContent = 'No bookings yet. Start booking resources to see analytics!';
-        message.style.color = '#6b7280';
-        message.style.marginTop = '2rem';
-        container.appendChild(message);
+        showMessage(container, 'No analytics data available yet.', 'info');
         return;
     }
     
