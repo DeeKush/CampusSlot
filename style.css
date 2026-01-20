@@ -66,6 +66,15 @@ body {
     color: var(--primary-color);
     text-decoration: none;
     transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 180px;
+    width: auto;
+    display: block;
+    object-fit: contain;
 }
 
 .app-name:hover {
