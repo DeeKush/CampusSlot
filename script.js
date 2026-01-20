@@ -249,6 +249,36 @@ document.addEventListener('DOMContentLoaded', function() {
             if (sidebarLink) updateActiveSidebarLink(sidebarLink);
         });
     }
+
+    // Terms and conditions modal handlers
+    const termsLink = document.getElementById('terms-link');
+    const termsModal = document.getElementById('terms-modal');
+    const closeTermsBtn = document.getElementById('close-terms');
+
+    if (termsLink) {
+        termsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (termsModal) {
+                termsModal.classList.remove('hidden');
+            }
+        });
+    }
+
+    if (closeTermsBtn) {
+        closeTermsBtn.addEventListener('click', function() {
+            if (termsModal) {
+                termsModal.classList.add('hidden');
+            }
+        });
+    }
+
+    if (termsModal) {
+        termsModal.addEventListener('click', function(event) {
+            if (event.target === termsModal) {
+                termsModal.classList.add('hidden');
+            }
+        });
+    }
 });
 
 // Export bookings to CSV file
@@ -722,7 +752,13 @@ function handleBookingSubmit(event) {
     event.preventDefault();
     
     const errorMsg = document.getElementById('error-message');
+    const termsCheckbox = document.getElementById('terms-checkbox');
     
+    if (!termsCheckbox.checked) {
+        errorMsg.textContent = 'Please agree to the terms and conditions';
+        errorMsg.classList.remove('hidden');
+        return;
+    }
     
     const selectedSlots = getSelectedSlots();
     

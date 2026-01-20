@@ -101,12 +101,71 @@
                     <label>Select Time Slots (click start and end):</label>
                     <div id="slots-container" class="slots-grid"></div>
                 </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="terms-checkbox" class="terms-checkbox">
+                        <span>I agree to the <a href="#" id="terms-link" class="terms-link">terms and conditions</a>. I will not damage the resource and will return it in proper condition.</span>
+                    </label>
+                </div>
                 <div class="error-message hidden" id="error-message"></div>
                 <div class="form-actions">
                     <button type="button" class="btn-cancel" id="cancel-booking">Cancel</button>
                     <button type="submit" class="btn-submit">Confirm Booking</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Terms and Conditions Modal -->
+    <div id="terms-modal" class="modal hidden">
+        <div class="modal-content terms-modal-content">
+            <div class="modal-header">
+                <h3>Terms and Conditions</h3>
+                <button class="close-modal" id="close-terms">&times;</button>
+            </div>
+            <div class="terms-content">
+                <h4>Resource Booking Agreement</h4>
+                <p>By booking a resource on CampusSlot, you agree to the following terms:</p>
+                
+                <h5>1. Proper Usage</h5>
+                <ul>
+                    <li>Use the resource only for its intended purpose</li>
+                    <li>Do not share or transfer your booking to others without permission</li>
+                    <li>Arrive on time for your booking slot</li>
+                </ul>
+                
+                <h5>2. Care and Maintenance</h5>
+                <ul>
+                    <li>Handle all resources with care and respect</li>
+                    <li>Report any damage or malfunction immediately</li>
+                    <li>Do not attempt to repair or modify resources yourself</li>
+                    <li>Return resources in the same condition as received</li>
+                </ul>
+                
+                <h5>3. Liability</h5>
+                <ul>
+                    <li>You are responsible for any damage caused during your booking period</li>
+                    <li>Repair or replacement costs may be charged to you</li>
+                    <li>Repeated violations may result in booking privileges being revoked</li>
+                </ul>
+                
+                <h5>4. Cancellation Policy</h5>
+                <ul>
+                    <li>Cancel bookings at least 2 hours in advance if you cannot attend</li>
+                    <li>No-shows may result in penalties or restrictions</li>
+                    <li>Repeated cancellations may affect future booking eligibility</li>
+                </ul>
+                
+                <h5>5. General Conduct</h5>
+                <ul>
+                    <li>Respect other users and their bookings</li>
+                    <li>Keep resource areas clean and organized</li>
+                    <li>Follow all campus rules and regulations</li>
+                    <li>Do not engage in any prohibited activities</li>
+                </ul>
+                
+                <p class="terms-footer">Last updated: January 20, 2026</p>
+            </div>
         </div>
     </div>
 
