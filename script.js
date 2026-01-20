@@ -71,6 +71,10 @@ let endSlot = null;
 // Global variable for selected booking date
 let selectedDate = getTodayDate();
 
+// Global variables for calendar navigation
+let calendarMonth = new Date().getMonth();
+let calendarYear = new Date().getFullYear();
+
 // Update theme icon based on current theme
 function updateThemeIcon() {
     const themeIcon = document.querySelector('.theme-icon');
@@ -390,6 +394,11 @@ function loadResources() {
         localStorage.setItem('campus_resources', JSON.stringify(defaultResources));
         return defaultResources;
     }
+}
+
+// Save resources to localStorage
+function saveResources(resources) {
+    localStorage.setItem('campus_resources', JSON.stringify(resources));
 }
 
 // Create a resource card element
@@ -1427,20 +1436,62 @@ function renderCalendarWidget(container, allBookings) {
     section.appendChild(title);
     
     const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
-    
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+    const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
     
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'];
     
+    // Calendar navigation header
+    const calendarNav = document.createElement('div');
+    calendarNav.className = 'calendar-nav';
+    
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'calendar-nav-btn';
+    prevBtn.innerHTML = '◀';
+    prevBtn.title = 'Previous month';
+    prevBtn.onclick = function() {
+        calendarMonth--;
+        if (calendarMonth < 0) {
+            calendarMonth = 11;
+            calendarYear--;
+        }
+        renderDashboard();
+    };
+    
     const calendarHeader = document.createElement('div');
     calendarHeader.className = 'calendar-header';
-    calendarHeader.textContent = monthNames[month] + ' ' + year;
-    section.appendChild(calendarHeader);
+    calendarHeader.textContent = monthNames[calendarMonth] + ' ' + calendarYear;
     
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'calendar-nav-btn';
+    nextBtn.innerHTML = '▶';
+    nextBtn.title = 'Next month';
+    nextBtn.onclick = function() {
+        calendarMonth++;
+        if (calendarMonth > 11) {
+            calendarMonth = 0;
+            calendarYear++;
+        }
+        renderDashboard();
+    };
+    
+    const todayBtn = document.createElement('button');
+    todayBtn.className = 'calendar-today-btn';
+    todayBtn.textContent = 'Today';
+    todayBtn.onclick = function() {
+        calendarMonth = today.getMonth();
+        calendarYear = today.getFullYear();
+        renderDashboard();
+    };
+    
+    calendarNav.appendChild(prevBtn);
+    calendarNav.appendChild(calendarHeader);
+    calendarNav.appendChild(nextBtn);
+    calendarNav.appendChild(todayBtn);
+    section.appendChild(calendarNav);
+    
+    // Calendar grid
     const calendarGrid = document.createElement('div');
     calendarGrid.className = 'calendar-grid';
     
@@ -1452,39 +1503,194 @@ function renderCalendarWidget(container, allBookings) {
         calendarGrid.appendChild(dayLabel);
     });
     
-    const bookingDates = {};
+    // Count bookings per date
+    const bookingsByDate = {};
     allBookings.forEach(function(b) {
         if (b.user === 'Student') {
-            bookingDates[b.date] = true;
+            if (!bookingsByDate[b.date]) {
+                bookingsByDate[b.date] = [];
+            }
+            bookingsByDate[b.date].push(b);
         }
     });
     
+    // Empty days before first day of month
     for (let i = 0; i < firstDay; i++) {
         const emptyDay = document.createElement('div');
         emptyDay.className = 'calendar-day empty';
         calendarGrid.appendChild(emptyDay);
     }
     
+    // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
         const dayEl = document.createElement('div');
         dayEl.className = 'calendar-day';
-        dayEl.textContent = day;
         
         const dayStr = String(day).padStart(2, '0');
-        const monthStr = String(month + 1).padStart(2, '0');
-        const dateStr = `${year}-${monthStr}-${dayStr}`;
+        const monthStr = String(calendarMonth + 1).padStart(2, '0');
+        const dateStr = `${calendarYear}-${monthStr}-${dayStr}`;
+        const dayDate = new Date(calendarYear, calendarMonth, day);
+        const isPast = dayDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
         
-        if (bookingDates[dateStr]) {
+        // Day number
+        const dayNumber = document.createElement('span');
+        dayNumber.className = 'calendar-day-number';
+        dayNumber.textContent = day;
+        dayEl.appendChild(dayNumber);
+        
+        // Check if this day has bookings
+        const dayBookings = bookingsByDate[dateStr];
+        if (dayBookings && dayBookings.length > 0) {
             dayEl.classList.add('has-booking');
+            
+            // Add booking count badge
+            const badge = document.createElement('span');
+            badge.className = 'booking-badge';
+            badge.textContent = dayBookings.length;
+            if (dayBookings.length > 2) {
+                badge.classList.add('badge-high');
+            }
+            dayEl.appendChild(badge);
+            
+            // Create tooltip content
+            const tooltip = document.createElement('div');
+            tooltip.className = 'calendar-tooltip';
+            tooltip.innerHTML = `<strong>${dayBookings.length} booking${dayBookings.length > 1 ? 's' : ''}</strong><br>`;
+            dayBookings.forEach(function(booking) {
+                const slots = booking.slots && booking.slots.length > 0 
+                    ? `${booking.slots[0]} - ${booking.slots[booking.slots.length - 1]}`
+                    : 'All day';
+                tooltip.innerHTML += `• ${booking.resourceName}<br><span style="font-size:0.85em;color:var(--text-muted)">${slots}</span><br>`;
+            });
+            dayEl.appendChild(tooltip);
         }
         
+        // Mark today
         if (dateStr === getTodayDate()) {
             dayEl.classList.add('today');
+        }
+        
+        // Mark past dates
+        if (isPast && dateStr !== getTodayDate()) {
+            dayEl.classList.add('past');
+        }
+        
+        // Make clickable if not in the past
+        if (!isPast || dayBookings) {
+            dayEl.style.cursor = 'pointer';
+            dayEl.onclick = function() {
+                handleCalendarDayClick(dateStr, dayBookings);
+            };
         }
         
         calendarGrid.appendChild(dayEl);
     }
     
     section.appendChild(calendarGrid);
+    
+    // Add legend
+    const legend = document.createElement('div');
+    legend.className = 'calendar-legend';
+    legend.innerHTML = `
+        <div class="legend-item"><span class="legend-dot today-dot"></span>Today</div>
+        <div class="legend-item"><span class="legend-dot booking-dot"></span>Has Bookings</div>
+        <div class="legend-item"><span class="legend-dot past-dot"></span>Past Date</div>
+    `;
+    section.appendChild(legend);
+    
+    // Add stats summary
+    const stats = calculateCalendarStats(bookingsByDate, calendarMonth, calendarYear);
+    const statsEl = document.createElement('div');
+    statsEl.className = 'calendar-stats';
+    statsEl.innerHTML = `
+        <div class="stat-item">
+            <span class="stat-label">Bookings this month:</span>
+            <span class="stat-value">${stats.monthBookings}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Next booking:</span>
+            <span class="stat-value">${stats.nextBooking}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Busiest day:</span>
+            <span class="stat-value">${stats.busiestDay}</span>
+        </div>
+    `;
+    section.appendChild(statsEl);
+    
     container.appendChild(section);
+}
+
+// Handle calendar day click
+function handleCalendarDayClick(dateStr, dayBookings) {
+    if (dayBookings && dayBookings.length > 0) {
+        // Show bookings for this day
+        const message = `You have ${dayBookings.length} booking${dayBookings.length > 1 ? 's' : ''} on this day. View in My Bookings?`;
+        if (confirm(message)) {
+            document.querySelector('[data-view="bookings"]').click();
+        }
+    } else {
+        // Quick book for this date
+        const dateObj = new Date(dateStr);
+        const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        if (confirm(`Book a resource for ${formattedDate}?`)) {
+            selectedDate = dateStr;
+            const resourceDatePicker = document.getElementById('resource-date');
+            if (resourceDatePicker) {
+                resourceDatePicker.value = dateStr;
+            }
+            document.querySelector('[data-view="resources"]').click();
+        }
+    }
+}
+
+// Calculate calendar statistics
+function calculateCalendarStats(bookingsByDate, month, year) {
+    const stats = {
+        monthBookings: 0,
+        nextBooking: 'None',
+        busiestDay: 'None'
+    };
+    
+    let maxBookings = 0;
+    let busiestDate = null;
+    let nextBookingDate = null;
+    const today = getTodayDate();
+    
+    Object.keys(bookingsByDate).forEach(function(date) {
+        const dateObj = new Date(date);
+        const bookingCount = bookingsByDate[date].length;
+        
+        // Count bookings in current viewing month
+        if (dateObj.getMonth() === month && dateObj.getFullYear() === year) {
+            stats.monthBookings += bookingCount;
+            
+            // Find busiest day
+            if (bookingCount > maxBookings) {
+                maxBookings = bookingCount;
+                busiestDate = date;
+            }
+        }
+        
+        // Find next booking
+        if (date >= today && (!nextBookingDate || date < nextBookingDate)) {
+            nextBookingDate = date;
+        }
+    });
+    
+    if (busiestDate) {
+        const busiestDateObj = new Date(busiestDate);
+        stats.busiestDay = busiestDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ` (${maxBookings})`;
+    }
+    
+    if (nextBookingDate) {
+        const nextDateObj = new Date(nextBookingDate);
+        if (nextBookingDate === today) {
+            stats.nextBooking = 'Today';
+        } else {
+            stats.nextBooking = nextDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+    }
+    
+    return stats;
 }
