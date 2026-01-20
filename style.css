@@ -762,6 +762,34 @@ body {
     color: #6b7280;
 }
 
+/* Export Button */
+.export-btn {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.export-btn:hover {
+    background-color: #15803d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(22, 163, 74, 0.2);
+}
+
+.export-btn::before {
+    content: '📥';
+    font-size: 1.1rem;
+}
+
 /* Fade in animation for view transitions */
 @keyframes fadeIn {
     from {

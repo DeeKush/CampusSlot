@@ -203,7 +203,65 @@ document.addEventListener('DOMContentLoaded', function() {
     if (bookingForm) {
         bookingForm.addEventListener('submit', handleBookingSubmit);
     }
+
+    // Export bookings button handler
+    const exportBtn = document.getElementById('export-bookings-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', exportBookings);
+    }
 });
+
+// Export bookings to CSV file
+function exportBookings() {
+    const resources = loadResources();
+    const userBookings = [];
+    
+    resources.forEach(function(resource) {
+        if (resource.bookings && resource.bookings.length > 0) {
+            resource.bookings.forEach(function(booking) {
+                if (booking.user === 'Student') {
+                    userBookings.push({
+                        resourceName: resource.name,
+                        date: booking.date,
+                        slots: booking.slots ? booking.slots.join(', ') : 'N/A'
+                    });
+                }
+            });
+        }
+    });
+    
+    if (userBookings.length === 0) {
+        const container = document.getElementById('bookings-view');
+        showMessage(container, 'No bookings to export.', 'info');
+        return;
+    }
+    
+    let csvContent = 'Resource,Date,Slots\n';
+    
+    userBookings.forEach(function(booking) {
+        const row = `"${booking.resourceName}","${booking.date}","${booking.slots}"`;
+        csvContent += row + '\n';
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const filename = `campuslot_bookings_${year}-${month}-${day}.csv`;
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    
+    URL.revokeObjectURL(url);
+    
+    const container = document.getElementById('bookings-view');
+    showMessage(container, `Successfully exported ${userBookings.length} booking(s)!`, 'success');
+}
 
 // Show message in a container
 function showMessage(container, text, type) {
@@ -323,11 +381,15 @@ function renderBookings() {
     const container = document.getElementById('bookings-view');
     if (!container) return;
     
-    // Clear existing content except heading
+    // Clear existing content except heading and export button
     const heading = container.querySelector('h2');
+    const exportBtn = container.querySelector('#export-bookings-btn');
     container.innerHTML = '';
     if (heading) {
         container.appendChild(heading);
+    }
+    if (exportBtn) {
+        container.appendChild(exportBtn);
     }
     
     // Load resources and get user bookings
