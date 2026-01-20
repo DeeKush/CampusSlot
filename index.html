@@ -69,6 +69,10 @@
                 <!-- Resources View -->
                 <div id="resources-view" class="view-section hidden">
                     <h2>Browse Resources</h2>
+                    <div class="date-selector">
+                        <label for="resource-date">Select Date:</label>
+                        <input type="date" id="resource-date" class="date-input">
+                    </div>
                 </div>
 
                 <!-- Bookings View -->
@@ -93,10 +97,6 @@
                 <button class="close-modal" id="close-modal">&times;</button>
             </div>
             <form id="booking-form">
-                <div class="form-group">
-                    <label for="booking-date">Date:</label>
-                    <input type="date" id="booking-date" required>
-                </div>
                 <div class="form-group">
                     <label>Select Time Slots (click start and end):</label>
                     <div id="slots-container" class="slots-grid"></div>
