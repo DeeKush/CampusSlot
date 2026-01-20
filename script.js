@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show default view on load
     hideAllViews();
     showView(currentView);
+    renderDashboard();
 
     // Add ONE click event listener to the sidebar (event delegation)
     sidebar.addEventListener('click', function(event) {
@@ -110,6 +111,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Show the selected view
         showView(viewName);
+
+        // If Dashboard is clicked, render dashboard
+        if (viewName === 'dashboard') {
+            renderDashboard();
+        }
 
         // If Browse Resources is clicked, render the resources
         if (viewName === 'resources') {
@@ -836,4 +842,403 @@ function createMetricCard(label, value, icon) {
     card.appendChild(content);
     
     return card;
+}
+
+// Render Dashboard
+function renderDashboard() {
+    const container = document.getElementById('dashboard-view');
+    if (!container) return;
+    
+    const heading = container.querySelector('h2');
+    container.innerHTML = '';
+    if (heading) {
+        container.appendChild(heading);
+    }
+    
+    const resources = loadResources();
+    const allBookings = [];
+    
+    resources.forEach(function(resource) {
+        if (resource.bookings) {
+            resource.bookings.forEach(function(booking) {
+                allBookings.push({
+                    ...booking,
+                    resourceId: resource.id,
+                    resourceName: resource.name,
+                    resourceType: resource.type
+                });
+            });
+        }
+    });
+    
+    const todayDate = getTodayDate();
+    
+    // 1. Quick Stats Cards
+    renderQuickStats(container, allBookings, resources, todayDate);
+    
+    // 2. Quick Action Buttons
+    renderQuickActions(container);
+    
+    // 3. Notifications/Alerts
+    renderNotifications(container, allBookings, todayDate);
+    
+    // 4. Today's Schedule
+    renderTodaySchedule(container, allBookings, todayDate);
+    
+    // 5. Recent Activity Feed
+    renderRecentActivity(container, allBookings);
+    
+    // 6. Resource Availability Summary
+    renderResourceSummary(container, resources, allBookings, todayDate);
+    
+    // 7. Calendar Widget
+    renderCalendarWidget(container, allBookings);
+}
+
+// Render Quick Stats
+function renderQuickStats(container, allBookings, resources, todayDate) {
+    const section = document.createElement('div');
+    section.className = 'dashboard-section';
+    
+    const title = document.createElement('h3');
+    title.textContent = 'Quick Stats';
+    title.className = 'section-title';
+    section.appendChild(title);
+    
+    const grid = document.createElement('div');
+    grid.className = 'dashboard-grid';
+    
+    const totalBookings = allBookings.length;
+    
+    const upcomingBookings = allBookings.filter(function(b) {
+        return b.date >= todayDate;
+    }).length;
+    
+    const todayBookings = allBookings.filter(function(b) {
+        return b.date === todayDate;
+    }).length;
+    
+    const resourceSlotCounts = {};
+    resources.forEach(function(resource) {
+        let totalSlots = 0;
+        if (resource.bookings) {
+            resource.bookings.forEach(function(booking) {
+                if (booking.slots) {
+                    totalSlots += booking.slots.length;
+                }
+            });
+        }
+        if (totalSlots > 0) {
+            resourceSlotCounts[resource.name] = totalSlots;
+        }
+    });
+    
+    let favoriteResource = 'None';
+    let maxSlots = 0;
+    Object.keys(resourceSlotCounts).forEach(function(name) {
+        if (resourceSlotCounts[name] > maxSlots) {
+            maxSlots = resourceSlotCounts[name];
+            favoriteResource = name;
+        }
+    });
+    
+    grid.appendChild(createStatCard('Total Bookings', totalBookings, '📊'));
+    grid.appendChild(createStatCard('Upcoming', upcomingBookings, '🔜'));
+    grid.appendChild(createStatCard('Today', todayBookings, '📅'));
+    grid.appendChild(createStatCard('Favorite', favoriteResource, '⭐'));
+    
+    section.appendChild(grid);
+    container.appendChild(section);
+}
+
+// Create stat card
+function createStatCard(label, value, icon) {
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    
+    const iconEl = document.createElement('div');
+    iconEl.className = 'stat-icon';
+    iconEl.textContent = icon;
+    
+    const labelEl = document.createElement('div');
+    labelEl.className = 'stat-label';
+    labelEl.textContent = label;
+    
+    const valueEl = document.createElement('div');
+    valueEl.className = 'stat-value';
+    valueEl.textContent = value;
+    
+    card.appendChild(iconEl);
+    card.appendChild(labelEl);
+    card.appendChild(valueEl);
+    
+    return card;
+}
+
+// Render Quick Actions
+function renderQuickActions(container) {
+    const section = document.createElement('div');
+    section.className = 'dashboard-section';
+    
+    const title = document.createElement('h3');
+    title.textContent = 'Quick Actions';
+    title.className = 'section-title';
+    section.appendChild(title);
+    
+    const actionsGrid = document.createElement('div');
+    actionsGrid.className = 'actions-grid';
+    
+    const bookNowBtn = document.createElement('button');
+    bookNowBtn.className = 'action-card';
+    bookNowBtn.innerHTML = '<span class="action-icon">🔍</span><span>Book Now</span>';
+    bookNowBtn.addEventListener('click', function() {
+        document.querySelector('[data-view="resources"]').click();
+    });
+    
+    const scheduleBtn = document.createElement('button');
+    scheduleBtn.className = 'action-card';
+    scheduleBtn.innerHTML = '<span class="action-icon">📅</span><span>View My Schedule</span>';
+    scheduleBtn.addEventListener('click', function() {
+        document.querySelector('[data-view="bookings"]').click();
+    });
+    
+    actionsGrid.appendChild(bookNowBtn);
+    actionsGrid.appendChild(scheduleBtn);
+    
+    section.appendChild(actionsGrid);
+    container.appendChild(section);
+}
+
+// Render Notifications
+function renderNotifications(container, allBookings, todayDate) {
+    const todayBookings = allBookings.filter(function(b) {
+        return b.date === todayDate && b.user === 'Student';
+    });
+    
+    if (todayBookings.length === 0) return;
+    
+    const section = document.createElement('div');
+    section.className = 'dashboard-section';
+    
+    const notification = document.createElement('div');
+    notification.className = 'notification-banner';
+    notification.innerHTML = `
+        <span class="notif-icon">🔔</span>
+        <span>You have ${todayBookings.length} booking${todayBookings.length > 1 ? 's' : ''} scheduled for today!</span>
+    `;
+    
+    section.appendChild(notification);
+    container.appendChild(section);
+}
+
+// Render Today's Schedule
+function renderTodaySchedule(container, allBookings, todayDate) {
+    const section = document.createElement('div');
+    section.className = 'dashboard-section';
+    
+    const title = document.createElement('h3');
+    title.textContent = "Today's Schedule";
+    title.className = 'section-title';
+    section.appendChild(title);
+    
+    const todayBookings = allBookings.filter(function(b) {
+        return b.date === todayDate && b.user === 'Student';
+    });
+    
+    if (todayBookings.length === 0) {
+        const emptyMsg = document.createElement('p');
+        emptyMsg.className = 'empty-state';
+        emptyMsg.textContent = 'No bookings for today. Enjoy your free time!';
+        section.appendChild(emptyMsg);
+    } else {
+        const scheduleList = document.createElement('div');
+        scheduleList.className = 'schedule-list';
+        
+        todayBookings.forEach(function(booking) {
+            const item = document.createElement('div');
+            item.className = 'schedule-item';
+            
+            const slotsText = booking.slots && booking.slots.length > 0 
+                ? booking.slots[0] + (booking.slots.length > 1 ? ` - ${booking.slots[booking.slots.length - 1]}` : '')
+                : 'Time not specified';
+            
+            item.innerHTML = `
+                <div class="schedule-time">${slotsText}</div>
+                <div class="schedule-resource">${booking.resourceName}</div>
+            `;
+            scheduleList.appendChild(item);
+        });
+        
+        section.appendChild(scheduleList);
+    }
+    
+    container.appendChild(section);
+}
+
+// Render Recent Activity
+function renderRecentActivity(container, allBookings) {
+    const section = document.createElement('div');
+    section.className = 'dashboard-section';
+    
+    const title = document.createElement('h3');
+    title.textContent = 'Recent Activity';
+    title.className = 'section-title';
+    section.appendChild(title);
+    
+    const userBookings = allBookings.filter(function(b) {
+        return b.user === 'Student';
+    });
+    
+    userBookings.sort(function(a, b) {
+        return new Date(b.date) - new Date(a.date);
+    });
+    
+    const recentBookings = userBookings.slice(0, 5);
+    
+    if (recentBookings.length === 0) {
+        const emptyMsg = document.createElement('p');
+        emptyMsg.className = 'empty-state';
+        emptyMsg.textContent = 'No recent activity yet.';
+        section.appendChild(emptyMsg);
+    } else {
+        const activityList = document.createElement('div');
+        activityList.className = 'activity-list';
+        
+        recentBookings.forEach(function(booking) {
+            const item = document.createElement('div');
+            item.className = 'activity-item';
+            
+            const bookingDate = new Date(booking.date);
+            const dateStr = bookingDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            
+            item.innerHTML = `
+                <div class="activity-icon">✓</div>
+                <div class="activity-content">
+                    <div class="activity-title">Booked ${booking.resourceName}</div>
+                    <div class="activity-date">${dateStr} • ${booking.slots ? booking.slots.length : 0} slots</div>
+                </div>
+            `;
+            activityList.appendChild(item);
+        });
+        
+        section.appendChild(activityList);
+    }
+    
+    container.appendChild(section);
+}
+
+// Render Resource Summary
+function renderResourceSummary(container, resources, allBookings, todayDate) {
+    const section = document.createElement('div');
+    section.className = 'dashboard-section';
+    
+    const title = document.createElement('h3');
+    title.textContent = 'Resource Availability';
+    title.className = 'section-title';
+    section.appendChild(title);
+    
+    const typeCounts = {};
+    resources.forEach(function(resource) {
+        if (!typeCounts[resource.type]) {
+            typeCounts[resource.type] = { total: 0, availableToday: 0 };
+        }
+        typeCounts[resource.type].total++;
+        
+        const hasBookingToday = resource.bookings && resource.bookings.some(function(b) {
+            return b.date === todayDate;
+        });
+        
+        if (!hasBookingToday) {
+            typeCounts[resource.type].availableToday++;
+        }
+    });
+    
+    const summaryGrid = document.createElement('div');
+    summaryGrid.className = 'summary-grid';
+    
+    Object.keys(typeCounts).forEach(function(type) {
+        const card = document.createElement('div');
+        card.className = 'summary-card';
+        card.innerHTML = `
+            <div class="summary-type">${type}</div>
+            <div class="summary-stats">${typeCounts[type].availableToday} of ${typeCounts[type].total} available today</div>
+        `;
+        summaryGrid.appendChild(card);
+    });
+    
+    section.appendChild(summaryGrid);
+    container.appendChild(section);
+}
+
+// Render Calendar Widget
+function renderCalendarWidget(container, allBookings) {
+    const section = document.createElement('div');
+    section.className = 'dashboard-section';
+    
+    const title = document.createElement('h3');
+    title.textContent = 'Calendar';
+    title.className = 'section-title';
+    section.appendChild(title);
+    
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    const calendarHeader = document.createElement('div');
+    calendarHeader.className = 'calendar-header';
+    calendarHeader.textContent = monthNames[month] + ' ' + year;
+    section.appendChild(calendarHeader);
+    
+    const calendarGrid = document.createElement('div');
+    calendarGrid.className = 'calendar-grid';
+    
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    dayNames.forEach(function(day) {
+        const dayLabel = document.createElement('div');
+        dayLabel.className = 'calendar-day-label';
+        dayLabel.textContent = day;
+        calendarGrid.appendChild(dayLabel);
+    });
+    
+    const bookingDates = {};
+    allBookings.forEach(function(b) {
+        if (b.user === 'Student') {
+            bookingDates[b.date] = true;
+        }
+    });
+    
+    for (let i = 0; i < firstDay; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day empty';
+        calendarGrid.appendChild(emptyDay);
+    }
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day';
+        dayEl.textContent = day;
+        
+        const dayStr = String(day).padStart(2, '0');
+        const monthStr = String(month + 1).padStart(2, '0');
+        const dateStr = `${year}-${monthStr}-${dayStr}`;
+        
+        if (bookingDates[dateStr]) {
+            dayEl.classList.add('has-booking');
+        }
+        
+        if (dateStr === getTodayDate()) {
+            dayEl.classList.add('today');
+        }
+        
+        calendarGrid.appendChild(dayEl);
+    }
+    
+    section.appendChild(calendarGrid);
+    container.appendChild(section);
 }
