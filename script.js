@@ -68,6 +68,9 @@ let currentResourceId = null;
 let startSlot = null;
 let endSlot = null;
 
+// Global variable for selected booking date
+let selectedDate = getTodayDate();
+
 // Update theme icon based on current theme
 function updateThemeIcon() {
     const themeIcon = document.querySelector('.theme-icon');
@@ -209,6 +212,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (exportBtn) {
         exportBtn.addEventListener('click', exportBookings);
     }
+
+    // Date picker handler for resource view
+    const resourceDatePicker = document.getElementById('resource-date');
+    if (resourceDatePicker) {
+        resourceDatePicker.value = getTodayDate();
+        resourceDatePicker.min = getTodayDate();
+        resourceDatePicker.addEventListener('change', function() {
+            selectedDate = this.value;
+            renderResources();
+        });
+    }
 });
 
 // Export bookings to CSV file
@@ -327,13 +341,15 @@ function createResourceCard(resource) {
     const card = document.createElement('div');
     card.className = 'resource-card';
     
-    // Always show as available for booking
+    const status = calculateResourceStatus(resource);
+    
     card.innerHTML = `
         <h3 class="resource-name">${resource.name}</h3>
         <p class="resource-type"><strong>Type:</strong> ${resource.type}</p>
         <p class="resource-location"><strong>Location:</strong> ${resource.location}</p>
-        <p class="resource-bookings">
-            <strong>Total Bookings:</strong> ${resource.bookings ? resource.bookings.length : 0}
+        <p class="resource-status">
+            <strong>Status:</strong> 
+            <span class="${status.className}">${status.text}</span>
         </p>
         <button class="book-btn" data-id="${resource.id}">
             Book Now
@@ -343,17 +359,44 @@ function createResourceCard(resource) {
     return card;
 }
 
+// Calculate resource status for selected date
+function calculateResourceStatus(resource) {
+    const totalSlots = 22;
+    
+    let bookedSlots = 0;
+    
+    if (resource.bookings) {
+        resource.bookings.forEach(function(booking) {
+            if (booking.date === selectedDate && booking.slots) {
+                bookedSlots += booking.slots.length;
+            }
+        });
+    }
+    
+    if (bookedSlots === 0) {
+        return { text: 'Available', className: 'status-available' };
+    } else if (bookedSlots < totalSlots) {
+        return { text: 'Partially Booked', className: 'status-partial' };
+    } else {
+        return { text: 'Fully Booked', className: 'status-full' };
+    }
+}
+
 // Render all resources to the view
 function renderResources() {
     const container = document.getElementById('resources-view');
     
     if (!container) return;
     
-    // Clear existing content except the heading
+    // Clear existing content except heading and date picker
     const heading = container.querySelector('h2');
+    const dateSelector = container.querySelector('.date-selector');
     container.innerHTML = '';
     if (heading) {
         container.appendChild(heading);
+    }
+    if (dateSelector) {
+        container.appendChild(dateSelector);
     }
     
     // Create a grid container for cards
@@ -483,13 +526,18 @@ function openBookingModal() {
         modal.classList.remove('hidden');
         document.getElementById('error-message').classList.add('hidden');
         
-        // Add event listener to date input to re-render slots when date changes
-        const dateInput = document.getElementById('booking-date');
-        if (dateInput) {
-            dateInput.addEventListener('change', function() {
-                renderSlots();
+        // Update modal header with selected date
+        const modalTitle = modal.querySelector('.modal-header h3');
+        if (modalTitle) {
+            const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
             });
+            modalTitle.textContent = `Book Resource - ${formattedDate}`;
         }
+        
+        renderSlots();
     }
 }
 
@@ -555,10 +603,9 @@ function renderSlots() {
     container.innerHTML = '';
     
     const slots = generateSlots();
-    const dateInput = document.getElementById('booking-date').value;
     
     // Get already booked slots for the selected date
-    const bookedSlots = getBookedSlots(dateInput);
+    const bookedSlots = getBookedSlots(selectedDate);
     
     slots.forEach(function(slot) {
         const button = document.createElement('button');
@@ -648,14 +695,8 @@ function getSelectedSlots() {
 function handleBookingSubmit(event) {
     event.preventDefault();
     
-    const dateInput = document.getElementById('booking-date').value;
     const errorMsg = document.getElementById('error-message');
     
-    if (!dateInput) {
-        errorMsg.textContent = 'Please select a date';
-        errorMsg.classList.remove('hidden');
-        return;
-    }
     
     const selectedSlots = getSelectedSlots();
     
@@ -681,7 +722,7 @@ function handleBookingSubmit(event) {
     // Create booking object
     const newBooking = {
         user: 'Student',
-        date: dateInput,
+        date: selectedDate,
         slots: selectedSlots
     };
     
@@ -697,7 +738,7 @@ function handleBookingSubmit(event) {
     
     // Check for conflicts
     for (let booking of resource.bookings) {
-        if (booking.date === dateInput) {
+        if (booking.date === selectedDate) {
             for (let slot of selectedSlots) {
                 if (booking.slots && booking.slots.includes(slot)) {
                     errorMsg.textContent = 'One or more selected slots are already booked';
