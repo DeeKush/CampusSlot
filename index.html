@@ -9,6 +9,13 @@
 <body>
     <!-- Top Navigation Bar -->
     <nav class="navbar">
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle menu">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+        
         <!-- Left: App Name/Logo -->
         <div class="navbar-left">
             <a href="#" class="app-name" data-view="dashboard">CampusSlot</a>
@@ -36,6 +43,9 @@
 
     <!-- Main Layout Container -->
     <div class="layout-container">
+        <!-- Sidebar Backdrop (Mobile) -->
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <nav class="sidebar-nav">

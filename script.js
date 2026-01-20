@@ -283,6 +283,39 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Mobile menu toggle functionality
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebarElement = document.getElementById('sidebar');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+
+    if (mobileMenuBtn && sidebarElement && sidebarBackdrop) {
+        // Toggle sidebar on button click
+        mobileMenuBtn.addEventListener('click', function() {
+            sidebarElement.classList.toggle('mobile-open');
+            sidebarBackdrop.classList.toggle('active');
+            mobileMenuBtn.classList.toggle('active');
+            document.body.classList.toggle('sidebar-open');
+        });
+
+        // Close sidebar when backdrop is clicked
+        sidebarBackdrop.addEventListener('click', function() {
+            sidebarElement.classList.remove('mobile-open');
+            sidebarBackdrop.classList.remove('active');
+            mobileMenuBtn.classList.remove('active');
+            document.body.classList.remove('sidebar-open');
+        });
+
+        // Close sidebar when a link is clicked (mobile only)
+        sidebarElement.addEventListener('click', function(event) {
+            if (event.target.closest('.sidebar-link') && window.innerWidth <= 768) {
+                sidebarElement.classList.remove('mobile-open');
+                sidebarBackdrop.classList.remove('active');
+                mobileMenuBtn.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            }
+        });
+    }
 });
 
 // Export bookings to CSV file
