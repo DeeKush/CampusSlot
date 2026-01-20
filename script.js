@@ -68,8 +68,37 @@ let currentResourceId = null;
 let startSlot = null;
 let endSlot = null;
 
+// Update theme icon based on current theme
+function updateThemeIcon() {
+    const themeIcon = document.querySelector('.theme-icon');
+    if (themeIcon) {
+        const isDark = document.body.classList.contains('dark-theme');
+        themeIcon.textContent = isDark ? '☀️' : '🌙';
+    }
+}
+
 // Wait for the page to load completely
 document.addEventListener('DOMContentLoaded', function() {
+
+    // Load and apply saved theme
+    const savedTheme = localStorage.getItem('campus_theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        updateThemeIcon();
+    }
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            document.body.classList.toggle('dark-theme');
+            
+            const isDark = document.body.classList.contains('dark-theme');
+            localStorage.setItem('campus_theme', isDark ? 'dark' : 'light');
+            
+            updateThemeIcon();
+        });
+    }
 
     // Get the sidebar container element
     const sidebar = document.getElementById('sidebar');
