@@ -234,17 +234,16 @@ function createResourceCard(resource) {
     const card = document.createElement('div');
     card.className = 'resource-card';
     
-    const statusClass = resource.status === 'available' ? 'status-available' : 'status-booked';
-    
+    // Always show as available for booking
     card.innerHTML = `
         <h3 class="resource-name">${resource.name}</h3>
         <p class="resource-type"><strong>Type:</strong> ${resource.type}</p>
         <p class="resource-location"><strong>Location:</strong> ${resource.location}</p>
-        <p class="resource-status ${statusClass}">
-            <strong>Status:</strong> ${resource.status}
+        <p class="resource-bookings">
+            <strong>Total Bookings:</strong> ${resource.bookings ? resource.bookings.length : 0}
         </p>
-        <button class="book-btn" data-id="${resource.id}" ${resource.status === 'booked' ? 'disabled' : ''}>
-            ${resource.status === 'available' ? 'Book Now' : 'Not Available'}
+        <button class="book-btn" data-id="${resource.id}">
+            Book Now
         </button>
     `;
     
@@ -386,7 +385,14 @@ function openBookingModal() {
         endSlot = null;
         modal.classList.remove('hidden');
         document.getElementById('error-message').classList.add('hidden');
-        renderSlots();
+        
+        // Add event listener to date input to re-render slots when date changes
+        const dateInput = document.getElementById('booking-date');
+        if (dateInput) {
+            dateInput.addEventListener('change', function() {
+                renderSlots();
+            });
+        }
     }
 }
 
@@ -427,12 +433,35 @@ function generateSlots() {
     return slots;
 }
 
+// Get booked slots for a specific date and resource
+function getBookedSlots(date) {
+    if (!date || !currentResourceId) return [];
+    
+    const resources = loadResources();
+    const resource = resources.find(r => r.id === currentResourceId);
+    
+    if (!resource || !resource.bookings) return [];
+    
+    const bookedSlots = [];
+    resource.bookings.forEach(function(booking) {
+        if (booking.date === date && booking.slots) {
+            bookedSlots.push(...booking.slots);
+        }
+    });
+    
+    return bookedSlots;
+}
+
 // Render slots in the modal
 function renderSlots() {
     const container = document.getElementById('slots-container');
     container.innerHTML = '';
     
     const slots = generateSlots();
+    const dateInput = document.getElementById('booking-date').value;
+    
+    // Get already booked slots for the selected date
+    const bookedSlots = getBookedSlots(dateInput);
     
     slots.forEach(function(slot) {
         const button = document.createElement('button');
@@ -441,9 +470,15 @@ function renderSlots() {
         button.textContent = slot;
         button.dataset.slot = slot;
         
-        button.addEventListener('click', function() {
-            handleSlotClick(slot);
-        });
+        // Disable already booked slots
+        if (bookedSlots.includes(slot)) {
+            button.disabled = true;
+            button.classList.add('slot-booked');
+        } else {
+            button.addEventListener('click', function() {
+                handleSlotClick(slot);
+            });
+        }
         
         container.appendChild(button);
     });
@@ -578,7 +613,6 @@ function handleBookingSubmit(event) {
     
     // Save booking
     resource.bookings.push(newBooking);
-    resource.status = 'booked';
     
     // Update localStorage
     localStorage.setItem('campus_resources', JSON.stringify(resources));
