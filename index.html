@@ -1,3 +1,4 @@
+<!-- filepath: c:\Users\Lenovo\Downloads\VSCode\Deepak Web Dev\Scalar WebDev\WebDev II Projects\CampusSlot\index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,8 +37,8 @@
             <button id="theme-toggle" class="theme-toggle-btn" title="Toggle theme">
                 <span class="theme-icon">🌙</span>
             </button>
-            <span class="user-label">Student</span>
-            <div class="user-avatar">S</div>
+            <span class="user-label" id="user-label">Student</span>
+            <div class="user-avatar" id="user-avatar">S</div>
         </div>
     </nav>
 
@@ -175,6 +176,30 @@
                 </ul>
                 
                 <p class="terms-footer">Last updated: January 20, 2026</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Registration Modal (First-time setup) -->
+    <div id="user-registration-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Welcome to CampusSlot! 👋</h3>
+            </div>
+            <div class="modal-body">
+                <form id="user-registration-form">
+                    <div class="form-group">
+                        <label for="user-name">Full Name *</label>
+                        <input type="text" id="user-name" class="form-input" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-phone">Phone Number *</label>
+                        <input type="tel" id="user-phone" class="form-input" placeholder="+91 1234567890" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-submit" style="width: 100%;">Get Started</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

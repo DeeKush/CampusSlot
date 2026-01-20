@@ -87,6 +87,9 @@ function updateThemeIcon() {
 // Wait for the page to load completely
 document.addEventListener('DOMContentLoaded', function() {
 
+    // Check if user profile exists, if not show registration modal
+    checkAndShowUserRegistration();
+
     // Load and apply saved theme
     const savedTheme = localStorage.getItem('campus_theme');
     if (savedTheme === 'dark') {
@@ -326,7 +329,7 @@ function exportBookings() {
     resources.forEach(function(resource) {
         if (resource.bookings && resource.bookings.length > 0) {
             resource.bookings.forEach(function(booking) {
-                if (booking.user === 'Student') {
+                if (booking.user === userName) {
                     userBookings.push({
                         resourceName: resource.name,
                         date: booking.date,
@@ -536,11 +539,13 @@ function renderBookings() {
     // Load resources and get user bookings
     const resources = loadResources();
     const userBookings = [];
+    const userData = getUserProfile();
+    const userName = userData ? userData.name : 'Student';
     
     resources.forEach(function(resource) {
         if (resource.bookings && resource.bookings.length > 0) {
             resource.bookings.forEach(function(booking) {
-                if (booking.user === 'Student') {
+                if (booking.user === userName) {
                     userBookings.push({
                         ...booking,
                         resourceName: resource.name,
@@ -643,9 +648,12 @@ function cancelBooking(resourceId, date, slots) {
         return;
     }
     
+    const userData = getUserProfile();
+    const userName = userData ? userData.name : 'Student';
+    
     // Find and remove the booking
     const bookingIndex = resource.bookings.findIndex(b => 
-        b.user === 'Student' && 
+        b.user === userName && 
         b.date === date && 
         JSON.stringify(b.slots) === JSON.stringify(slots)
     );
@@ -876,8 +884,11 @@ function handleBookingSubmit(event) {
     }
     
     // Create booking object
+    const userData = getUserProfile();
+    const userName = userData ? userData.name : 'Student';
+    
     const newBooking = {
-        user: 'Student',
+        user: userName,
         date: selectedDate,
         slots: selectedSlots
     };
@@ -1727,3 +1738,84 @@ function calculateCalendarStats(bookingsByDate, month, year) {
     
     return stats;
 }
+
+// User Profile Management Functions
+
+// Get user profile from localStorage
+function getUserProfile() {
+    const stored = localStorage.getItem('campus_user_profile');
+    return stored ? JSON.parse(stored) : null;
+}
+
+// Save user profile to localStorage
+function saveUserProfile(profile) {
+    localStorage.setItem('campus_user_profile', JSON.stringify(profile));
+}
+
+// Update UI with user profile data
+function updateUserUI(profile) {
+    const userLabel = document.getElementById('user-label');
+    const userAvatar = document.getElementById('user-avatar');
+    
+    if (userLabel && profile.name) {
+        userLabel.textContent = profile.name;
+    }
+    
+    if (userAvatar && profile.name) {
+        const initials = profile.name
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase())
+            .slice(0, 2)
+            .join('');
+        userAvatar.textContent = initials;
+    }
+}
+
+// Check and show user registration modal
+function checkAndShowUserRegistration() {
+    const userProfile = getUserProfile();
+    
+    if (!userProfile) {
+        // First-time user, show registration modal
+        const modal = document.getElementById('user-registration-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
+    } else {
+        // Update UI with existing profile
+        updateUserUI(userProfile);
+    }
+    
+    // Handle registration form submission
+    const registrationForm = document.getElementById('user-registration-form');
+    if (registrationForm) {
+        registrationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const profile = {
+                name: document.getElementById('user-name').value.trim(),
+                phone: document.getElementById('user-phone').value.trim(),
+                registeredAt: new Date().toISOString()
+            };
+            
+            if (profile.name && profile.phone) {
+                saveUserProfile(profile);
+                updateUserUI(profile);
+                
+                // Close modal
+                const modal = document.getElementById('user-registration-modal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+                
+                // Show welcome message
+                setTimeout(function() {
+                    alert('Welcome to CampusSlot, ' + profile.name + '! \n\nYou can now start booking resources.');
+                }, 300);
+            }
+        });
+    }
+}
+
+
+
