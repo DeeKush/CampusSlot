@@ -875,7 +875,35 @@ body {
 }
 
 .booking-slots strong {
-    color: #6b7280;
+    color: var(--text-muted);
+}
+
+.booking-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.cancel-booking-btn {
+    padding: 0.5rem 1rem;
+    background-color: var(--error-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cancel-booking-btn:hover {
+    background-color: #b91c1c;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+}
+
+.cancel-booking-btn:active {
+    transform: translateY(0);
 }
 
 /* Export Button */

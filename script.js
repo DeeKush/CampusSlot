@@ -567,10 +567,62 @@ function createBookingCard(booking) {
         slotsContainer.appendChild(slotsText);
     }
     
+    // Add actions container with cancel button
+    const actionsContainer = document.createElement('div');
+    actionsContainer.className = 'booking-actions';
+    
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'cancel-booking-btn';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.onclick = function() {
+        cancelBooking(booking.resourceId, booking.date, booking.slots);
+    };
+    
+    actionsContainer.appendChild(cancelBtn);
+    
     card.appendChild(header);
     card.appendChild(slotsContainer);
+    card.appendChild(actionsContainer);
     
     return card;
+}
+
+// Cancel a booking
+function cancelBooking(resourceId, date, slots) {
+    if (!confirm('Are you sure you want to cancel this booking?')) {
+        return;
+    }
+    
+    const resources = loadResources();
+    const resource = resources.find(r => r.id === resourceId);
+    
+    if (!resource || !resource.bookings) {
+        alert('Booking not found.');
+        return;
+    }
+    
+    // Find and remove the booking
+    const bookingIndex = resource.bookings.findIndex(b => 
+        b.user === 'Student' && 
+        b.date === date && 
+        JSON.stringify(b.slots) === JSON.stringify(slots)
+    );
+    
+    if (bookingIndex !== -1) {
+        resource.bookings.splice(bookingIndex, 1);
+        saveResources(resources);
+        renderBookings();
+        alert('Booking cancelled successfully!');
+        
+        // Refresh other views if needed
+        if (currentView === 'dashboard') {
+            renderDashboard();
+        } else if (currentView === 'resources') {
+            renderResources();
+        }
+    } else {
+        alert('Booking not found.');
+    }
 }
 
 // Open booking modal
