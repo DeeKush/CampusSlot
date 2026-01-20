@@ -223,6 +223,32 @@ document.addEventListener('DOMContentLoaded', function() {
             renderResources();
         });
     }
+
+    // Navbar links functionality
+    const navbar = document.querySelector('.navbar');
+    if (navbar) {
+        navbar.addEventListener('click', function(event) {
+            const clickedLink = event.target.closest('[data-view]');
+            if (!clickedLink) return;
+            
+            event.preventDefault();
+            const viewName = clickedLink.getAttribute('data-view');
+            
+            if (!viewName) return;
+            
+            currentView = viewName;
+            hideAllViews();
+            showView(viewName);
+            
+            if (viewName === 'dashboard') renderDashboard();
+            if (viewName === 'resources') renderResources();
+            if (viewName === 'bookings') renderBookings();
+            if (viewName === 'analytics') renderAnalytics();
+            
+            const sidebarLink = document.querySelector(`#sidebar [data-view="${viewName}"]`);
+            if (sidebarLink) updateActiveSidebarLink(sidebarLink);
+        });
+    }
 });
 
 // Export bookings to CSV file
