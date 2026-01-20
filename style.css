@@ -69,7 +69,7 @@ body {
 }
 
 .app-name:hover {
-    color: #1d4ed8;
+    color: var(--secondary-color);
 }
 
 /* Center Section - Navigation Links */
@@ -89,7 +89,7 @@ body {
 .nav-link {
     font-size: 0.95rem;
     font-weight: 500;
-    color: #6b7280;
+    color: var(--text-muted);
     text-decoration: none;
     transition: color 0.3s ease;
     position: relative;
@@ -257,13 +257,13 @@ body {
 
 .view-section h2 {
     font-size: 1.75rem;
-    color: #1f2937;
+    color: var(--text-main);
     margin-bottom: 1rem;
 }
 
 .view-section p {
     font-size: 1rem;
-    color: #6b7280;
+    color: var(--text-muted);
     line-height: 1.6;
 }
 
@@ -321,9 +321,9 @@ body {
 }
 
 .msg-info {
-    background-color: #eff6ff;
-    color: #1e40af;
-    border: 1px solid #bfdbfe;
+    background-color: var(--bg-color);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
 }
 
 .msg-info::before {
@@ -332,9 +332,9 @@ body {
 }
 
 .msg-error {
-    background-color: #fee2e2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
+    background-color: var(--bg-color);
+    color: var(--error-color);
+    border: 1px solid var(--error-color);
 }
 
 .msg-error::before {
@@ -343,9 +343,9 @@ body {
 }
 
 .msg-success {
-    background-color: #d1fae5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
+    background-color: var(--bg-color);
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
 }
 
 .msg-success::before {
@@ -397,17 +397,17 @@ body {
 }
 
 .status-available {
-    color: #16a34a;
+    color: var(--success-color);
     font-weight: 600;
 }
 
 .status-partial {
-    color: #f59e0b;
+    color: var(--warning-color);
     font-weight: 600;
 }
 
 .status-full {
-    color: #dc2626;
+    color: var(--error-color);
     font-weight: 600;
 }
 
@@ -433,8 +433,9 @@ body {
 }
 
 .book-btn:disabled {
-    background-color: #9ca3af;
+    background-color: var(--text-muted);
     cursor: not-allowed;
+    opacity: 0.6;
 }
 
 /* Modal Styles */
@@ -670,9 +671,10 @@ body {
 }
 
 .slot-btn:hover:disabled {
-    border-color: #d1d5db;
-    background-color: #f3f4f6;
+    border-color: var(--border-color);
+    background-color: var(--bg-color);
     cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .slot-btn.selected {
@@ -683,15 +685,15 @@ body {
 }
 
 .slot-btn.in-range {
-    background-color: #bfdbfe;
-    border-color: #60a5fa;
-    color: #1e40af;
+    background-color: var(--bg-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
 }
 
 .slot-btn.slot-booked {
-    background-color: #fee2e2;
-    border-color: #fca5a5;
-    color: #991b1b;
+    background-color: var(--bg-color);
+    border-color: var(--error-color);
+    color: var(--error-color);
     cursor: not-allowed;
     opacity: 0.6;
 }
@@ -732,7 +734,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #eff6ff;
+    background-color: var(--bg-color);
     border-radius: 12px;
 }
 
@@ -749,7 +751,7 @@ body {
 
 .metric-value {
     font-size: 1.5rem;
-    color: #1f2937;
+    color: var(--text-main);
     font-weight: 700;
 }
 
@@ -760,7 +762,7 @@ body {
 
 .history-title {
     font-size: 1.5rem;
-    color: #1f2937;
+    color: var(--text-main);
     margin-bottom: 1.5rem;
 }
 
@@ -814,12 +816,12 @@ body {
 .history-user,
 .history-slots {
     font-size: 0.9rem;
-    color: #374151;
+    color: var(--text-main);
 }
 
 .history-user strong,
 .history-slots strong {
-    color: #6b7280;
+    color: var(--text-muted);
     font-weight: 500;
 }
 
@@ -1263,7 +1265,7 @@ body.sidebar-open {
 
 .stat-card {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    color: white;
+    color: white !important;
     padding: 1.5rem;
     border-radius: 12px;
     text-align: center;
@@ -1279,11 +1281,13 @@ body.sidebar-open {
 .stat-icon {
     font-size: 2rem;
     margin-bottom: 0.5rem;
+    color: white !important;
 }
 
 .stat-label {
     font-size: 0.875rem;
-    opacity: 0.9;
+    color: white !important;
+    opacity: 0.95;
     margin-bottom: 0.25rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -1292,6 +1296,7 @@ body.sidebar-open {
 .stat-value {
     font-size: 1.75rem;
     font-weight: 700;
+    color: white !important;
 }
 
 .actions-grid {
