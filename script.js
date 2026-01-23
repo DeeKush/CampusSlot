@@ -1,3 +1,10 @@
+// JSONbin.io API Configuration
+const JSONBIN_CONFIG = {
+    BIN_ID: '6973867943b1c97be9444ac1',
+    API_KEY: '$2a$10$SDIeVbyMs.RMURM629OeMubYENpbKAvxPCQvb3Czy5eHFb36pvrkG',
+    BASE_URL: 'https://api.jsonbin.io/v3/b/'
+};
+
 // Default resources data
 const defaultResources = [
     {
@@ -220,6 +227,12 @@ document.addEventListener('DOMContentLoaded', function() {
         exportBtn.addEventListener('click', exportBookings);
     }
 
+    // Refresh bookings button handler
+    const refreshBtn = document.getElementById('refresh-bookings-btn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', refreshResources);
+    }
+
     // Date picker handler for resource view
     const resourceDatePicker = document.getElementById('resource-date');
     if (resourceDatePicker) {
@@ -420,6 +433,79 @@ function updateActiveSidebarLink(clickedLink) {
     clickedLink.classList.add('active');
 }
 
+// JSONbin.io API Helper Functions
+function fetchFromAPI() {
+    return fetch(JSONBIN_CONFIG.BASE_URL + JSONBIN_CONFIG.BIN_ID + '/latest', {
+        method: 'GET',
+        headers: {
+            'X-Master-Key': JSONBIN_CONFIG.API_KEY
+        }
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('Failed to fetch data from API');
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        return data.record;
+    })
+    .catch(function(error) {
+        console.error('API Fetch Error:', error);
+        const stored = localStorage.getItem('campus_resources');
+        if (stored) {
+            return JSON.parse(stored);
+        }
+        return defaultResources;
+    });
+}
+
+function saveToAPI(resources) {
+    return fetch(JSONBIN_CONFIG.BASE_URL + JSONBIN_CONFIG.BIN_ID, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': JSONBIN_CONFIG.API_KEY
+        },
+        body: JSON.stringify(resources)
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('Failed to save data to API');
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        localStorage.setItem('campus_resources', JSON.stringify(resources));
+        return data;
+    })
+    .catch(function(error) {
+        console.error('API Save Error:', error);
+        localStorage.setItem('campus_resources', JSON.stringify(resources));
+        throw error;
+    });
+}
+
+function showNotification(message, type) {
+    const notification = document.getElementById('notification-message');
+    if (!notification) return;
+    
+    notification.textContent = message;
+    notification.className = 'notification';
+    
+    if (type === 'success') {
+        notification.classList.add('notification-success');
+    } else if (type === 'error') {
+        notification.classList.add('notification-error');
+    }
+    
+    notification.classList.remove('hidden');
+    
+    setTimeout(function() {
+        notification.classList.add('hidden');
+    }, 3000);
+}
+
 // Load resources from localStorage or use defaults
 function loadResources() {
     const stored = localStorage.getItem('campus_resources');
@@ -432,9 +518,56 @@ function loadResources() {
     }
 }
 
-// Save resources to localStorage
+// Refresh resources from JSONbin.io API
+function refreshResources() {
+    const refreshBtn = document.getElementById('refresh-bookings-btn');
+    if (refreshBtn) {
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = '🔄 Loading...';
+    }
+    
+    fetchFromAPI()
+        .then(function(resources) {
+            localStorage.setItem('campus_resources', JSON.stringify(resources));
+            
+            if (currentView === 'resources') {
+                renderResources();
+            } else if (currentView === 'dashboard') {
+                renderDashboard();
+            } else if (currentView === 'bookings') {
+                renderBookings();
+            }
+            
+            if (refreshBtn) {
+                refreshBtn.disabled = false;
+                refreshBtn.textContent = '🔄 Refresh Bookings';
+            }
+            
+            showNotification('Bookings refreshed successfully!', 'success');
+        })
+        .catch(function(error) {
+            console.error('Refresh failed:', error);
+            
+            if (refreshBtn) {
+                refreshBtn.disabled = false;
+                refreshBtn.textContent = '🔄 Refresh Bookings';
+            }
+            
+            showNotification('Failed to refresh. Using local data.', 'error');
+        });
+}
+
+// Save resources to localStorage and JSONbin.io
 function saveResources(resources) {
     localStorage.setItem('campus_resources', JSON.stringify(resources));
+    
+    saveToAPI(resources)
+        .then(function() {
+            console.log('Saved to API successfully');
+        })
+        .catch(function(error) {
+            console.error('Failed to save to API:', error);
+        });
 }
 
 // Create a resource card element
@@ -919,8 +1052,8 @@ function handleBookingSubmit(event) {
     // Save booking
     resource.bookings.push(newBooking);
     
-    // Update localStorage
-    localStorage.setItem('campus_resources', JSON.stringify(resources));
+    // Save to localStorage and API
+    saveResources(resources);
     
     // Close modal and refresh view
     closeBookingModal();
