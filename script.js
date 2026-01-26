@@ -32,7 +32,7 @@ const defaultResources = [
     // Study Spaces - Time-based booking
     {
         id: 1,
-        name: "Library Study Room (25-30 seats)",
+        name: "Library Study Room",
         category: CATEGORIES.STUDY_SPACE,
         location: "Library - 1st Floor",
         bookingType: BOOKING_TYPES.TIME_SLOT,
@@ -41,7 +41,7 @@ const defaultResources = [
     },
     {
         id: 2,
-        name: "Study Room 2 (25-30 seats)",
+        name: "Study Room 2",
         category: CATEGORIES.STUDY_SPACE,
         location: "Library - 1st Floor",
         bookingType: BOOKING_TYPES.TIME_SLOT,
@@ -85,7 +85,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 10,
+        capacity: 5,
         bookings: []
     },
     {
@@ -94,7 +94,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 15,
+        capacity: 7,
         bookings: []
     },
     {
@@ -103,7 +103,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 10,
+        capacity: 5,
         bookings: []
     },
     {
@@ -112,7 +112,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 15,
+        capacity: 7,
         bookings: []
     },
     {
@@ -121,7 +121,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 20,
+        capacity: 5,
         bookings: []
     },
     {
@@ -130,7 +130,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 10,
+        capacity: 7,
         bookings: []
     },
     {
@@ -139,7 +139,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 15,
+        capacity: 5,
         bookings: []
     },
     {
@@ -148,7 +148,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 10,
+        capacity: 7,
         bookings: []
     },
     {
@@ -157,7 +157,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 15,
+        capacity: 5,
         bookings: []
     },
     {
@@ -166,7 +166,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 20,
+        capacity: 7,
         bookings: []
     },
     {
@@ -175,7 +175,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 10,
+        capacity: 5,
         bookings: []
     },
     {
@@ -184,7 +184,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 15,
+        capacity: 7,
         bookings: []
     },
     {
@@ -193,7 +193,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 10,
+        capacity: 5,
         bookings: []
     },
     {
@@ -202,7 +202,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 15,
+        capacity: 7,
         bookings: []
     },
     {
@@ -211,7 +211,7 @@ const defaultResources = [
         category: CATEGORIES.MEETING_ROOM,
         location: "Admin Block",
         bookingType: BOOKING_TYPES.TIME_SLOT,
-        capacity: 20,
+        capacity: 5,
         bookings: []
     },
     
@@ -939,6 +939,24 @@ function loadResources() {
                 localStorage.setItem(STORAGE_KEYS.RESOURCES, JSON.stringify(defaultResources));
                 return defaultResources;
             }
+            
+            // Migrate resource names (remove seat capacity from study room names)
+            let needsUpdate = false;
+            resources.forEach(resource => {
+                if (resource.name === "Library Study Room (25-30 seats)") {
+                    resource.name = "Library Study Room";
+                    needsUpdate = true;
+                }
+                if (resource.name === "Study Room 2 (25-30 seats)") {
+                    resource.name = "Study Room 2";
+                    needsUpdate = true;
+                }
+            });
+            
+            if (needsUpdate) {
+                localStorage.setItem(STORAGE_KEYS.RESOURCES, JSON.stringify(resources));
+            }
+            
             return resources;
         } catch (error) {
             console.error('Error parsing stored resources:', error);
@@ -1038,7 +1056,7 @@ function createResourceCard(resource) {
         <h3 class="resource-name">${resource.name}</h3>
         <p class="resource-location"><strong>Location:</strong> ${resource.location}</p>
         ${resource.bookingType === BOOKING_TYPES.TIME_SLOT ? 
-            `<p class="resource-capacity"><strong>Capacity:</strong> ${resource.capacity} ${resource.category === CATEGORIES.STUDY_SPACE ? 'seats' : 'person(s)'}</p>` :
+            `<p class="resource-capacity"><strong>Capacity:</strong> ${resource.capacity} ${resource.category === CATEGORIES.STUDY_SPACE ? 'seats' : resource.category === CATEGORIES.SPORTS_FACILITY ? 'group' : 'person(s)'}</p>` :
             `<p class="resource-quantity"><strong>Total Quantity:</strong> ${resource.totalQuantity}</p>`
         }
         <p class="resource-status">
