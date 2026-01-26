@@ -439,6 +439,7 @@ function openTermsModal() {
     const termsModal = document.getElementById('terms-modal');
     if (termsModal) {
         termsModal.classList.remove('hidden');
+        document.body.classList.add('modal-open');
     }
 }
 
@@ -692,6 +693,7 @@ document.addEventListener('DOMContentLoaded', function() {
         closeTermsBtn.addEventListener('click', function() {
             if (termsModal) {
                 termsModal.classList.add('hidden');
+                document.body.classList.remove('modal-open');
             }
         });
     }
@@ -700,6 +702,7 @@ document.addEventListener('DOMContentLoaded', function() {
         termsModal.addEventListener('click', function(event) {
             if (event.target === termsModal) {
                 termsModal.classList.add('hidden');
+                document.body.classList.remove('modal-open');
             }
         });
     }
@@ -1439,6 +1442,7 @@ function openBookingModal() {
     startSlot = null;
     endSlot = null;
     modal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
     
     // Render dynamic modal content based on category
     renderModalContent(resource);
@@ -1557,6 +1561,8 @@ function renderTimeSlotModalForm(form, resource) {
 function renderQuantityModalForm(form, resource) {
     const availableQuantity = calculateAvailableQuantity(resource);
     const categoryInfo = getCategoryInfo(resource.category);
+    const today = getTodayDate();
+    const maxReturnDate = getMaxReturnDate(today);
     
     form.innerHTML = `
         <div class="booking-info">
@@ -1565,18 +1571,22 @@ function renderQuantityModalForm(form, resource) {
             <p><strong>Available:</strong> <span class="availability-badge">${availableQuantity} of ${resource.totalQuantity}</span></p>
         </div>
         
-        <div class="form-group">
-            <label>Quantity Needed:</label>
-            <input type="number" id="quantity-input" required min="1" max="${availableQuantity}" 
-                   value="1" placeholder="Enter quantity">
-            <p class="helper-text">Maximum available: ${availableQuantity}</p>
-        </div>
+        
         
         ${resource.category === CATEGORIES.TECH_EQUIPMENT ? `
             <div class="form-group">
                 <label>Reason for Issue: <span class="required">*</span></label>
                 <textarea id="issue-reason" required rows="3" 
                           placeholder="Please specify why you need this equipment"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Issue Date:</label>
+                <input type="date" id="issue-date" required value="${selectedDate}" min="${today}">
+            </div>
+            <div class="form-group">
+                <label>Return Date: <span class="required">*</span></label>
+                <input type="date" id="return-date" required min="${today}" max="${maxReturnDate}">
+                <p class="helper-text">Maximum return period: 1 month from issue date</p>
             </div>
         ` : `
             <div class="form-group">
@@ -1589,12 +1599,11 @@ function renderQuantityModalForm(form, resource) {
                     <option value="Training">Training</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label>Date Needed:</label>
+                <input type="date" id="issue-date" required value="${selectedDate}" min="${today}">
+            </div>
         `}
-        
-        <div class="form-group">
-            <label>Date Needed:</label>
-            <input type="date" id="issue-date" required value="${selectedDate}" min="${getTodayDate()}">
-        </div>
         
         <div class="form-group">
             <label class="checkbox-label">
@@ -1610,6 +1619,31 @@ function renderQuantityModalForm(form, resource) {
             <button type="submit" class="btn-primary">Confirm Issue</button>
         </div>
     `;
+    
+    // Add date validation for tech equipment
+    if (resource.category === CATEGORIES.TECH_EQUIPMENT) {
+        setTimeout(function() {
+            const issueDateInput = document.getElementById('issue-date');
+            const returnDateInput = document.getElementById('return-date');
+            
+            if (issueDateInput && returnDateInput) {
+                issueDateInput.addEventListener('change', function() {
+                    const newMaxDate = getMaxReturnDate(this.value);
+                    returnDateInput.min = this.value;
+                    returnDateInput.max = newMaxDate;
+                    
+                    // Reset return date if it's now invalid
+                    if (returnDateInput.value) {
+                        const issueDate = new Date(this.value);
+                        const returnDate = new Date(returnDateInput.value);
+                        if (returnDate < issueDate) {
+                            returnDateInput.value = '';
+                        }
+                    }
+                });
+            }
+        }, 10);
+    }
     
     // Add terms link handler
     const termsLink = document.getElementById('view-terms-link');
@@ -1665,6 +1699,7 @@ function closeBookingModal() {
         form.innerHTML = '';
     }
     
+    document.body.classList.remove('modal-open');
     currentResourceId = null;
     startSlot = null;
     endSlot = null;
@@ -1968,12 +2003,40 @@ function handleQuantityBooking(resource, resources, errorMsg) {
     // Add category-specific fields
     if (resource.category === CATEGORIES.TECH_EQUIPMENT) {
         const issueReason = document.getElementById('issue-reason');
+        const returnDate = document.getElementById('return-date');
+        
         if (!issueReason || !issueReason.value.trim()) {
             errorMsg.textContent = 'Please specify reason for equipment issue';
             errorMsg.classList.remove('hidden');
             return;
         }
+        
+        if (!returnDate || !returnDate.value) {
+            errorMsg.textContent = 'Please specify return date';
+            errorMsg.classList.remove('hidden');
+            return;
+        }
+        
+        // Validate return date is within 1 month
+        const issue = new Date(issueDate.value);
+        const returnDt = new Date(returnDate.value);
+        const maxReturn = new Date(issue);
+        maxReturn.setMonth(maxReturn.getMonth() + 1);
+        
+        if (returnDt > maxReturn) {
+            errorMsg.textContent = 'Return date cannot be more than 1 month from issue date';
+            errorMsg.classList.remove('hidden');
+            return;
+        }
+        
+        if (returnDt < issue) {
+            errorMsg.textContent = 'Return date cannot be before issue date';
+            errorMsg.classList.remove('hidden');
+            return;
+        }
+        
         newBooking.issueReason = issueReason.value.trim();
+        newBooking.returnDate = returnDate.value;
     } else if (resource.category === CATEGORIES.SPORTS_EQUIPMENT) {
         const purpose = document.getElementById('equipment-purpose');
         if (purpose && purpose.value) {
@@ -1996,6 +2059,16 @@ function getTodayDate() {
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Get max return date (1 month from issue date)
+function getMaxReturnDate(issueDate) {
+    const date = new Date(issueDate);
+    date.setMonth(date.getMonth() + 1);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
 
