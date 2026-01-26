@@ -38,7 +38,15 @@
                 <span class="theme-icon">🌙</span>
             </button>
             <span class="user-label" id="user-label">Student</span>
-            <div class="user-avatar" id="user-avatar">S</div>
+            <div class="user-profile-wrapper">
+                <div class="user-avatar" id="user-avatar">S</div>
+                <div class="profile-dropdown hidden" id="profile-dropdown">
+                    <div class="profile-dropdown-item" id="logout-btn">
+                        <span class="dropdown-icon">🚪</span>
+                        <span>Logout</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -74,9 +82,31 @@
 
                 <div id="resources-view" class="view-section hidden">
                     <h2>Browse Resources</h2>
-                    <div class="date-selector">
-                        <label for="resource-date">Select Date:</label>
-                        <input type="date" id="resource-date" class="date-input">
+                    <div class="resources-controls">
+                        <div class="search-filter-wrapper">
+                            <div class="search-box">
+                                <input type="text" id="resource-search" class="search-input" placeholder="🔍 Search resources...">
+                            </div>
+                            <div class="filter-group">
+                                <select id="category-filter" class="filter-select">
+                                    <option value="all">All Categories</option>
+                                    <option value="study-space">Study Spaces</option>
+                                    <option value="sports-facility">Sports Facilities</option>
+                                    <option value="meeting-room">Meeting Rooms</option>
+                                    <option value="tech-equipment">Tech Equipment</option>
+                                    <option value="sports-equipment">Sports Equipment</option>
+                                </select>
+                                <select id="availability-filter" class="filter-select">
+                                    <option value="all">All Resources</option>
+                                    <option value="available">Available Only</option>
+                                    <option value="unavailable">Unavailable</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="date-selector">
+                            <label for="resource-date">Select Date:</label>
+                            <input type="date" id="resource-date" class="date-input">
+                        </div>
                     </div>
                 </div>
 
@@ -180,11 +210,27 @@
                 <form id="user-registration-form">
                     <div class="form-group">
                         <label for="user-name">Full Name *</label>
-                        <input type="text" id="user-name" class="form-input" placeholder="Enter your name" required>
+                        <input type="text" id="user-name" class="form-input" placeholder="Enter your full name" required>
+                        <small id="name-validation" class="validation-message hidden"></small>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-batch">Batch *</label>
+                        <select id="user-batch" class="form-input" required>
+                            <option value="">Select your batch</option>
+                            <option value="2027">Class of 2027</option>
+                            <option value="2028">Class of 2028</option>
+                            <option value="2029">Class of 2029</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-roll">Roll Number *</label>
+                        <input type="text" id="user-roll" class="form-input" placeholder="Enter your roll number" required>
+                        <small id="roll-validation" class="validation-message hidden"></small>
                     </div>
                     <div class="form-group">
                         <label for="user-phone">Phone Number *</label>
-                        <input type="tel" id="user-phone" class="form-input" placeholder="+91 1234567890" required>
+                        <input type="tel" id="user-phone" class="form-input" placeholder="1234567890" required>
+                        <small id="phone-validation" class="validation-message hidden"></small>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn-submit" style="width: 100%;">Get Started</button>

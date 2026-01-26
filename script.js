@@ -5,62 +5,415 @@ const JSONBIN_CONFIG = {
     BASE_URL: 'https://api.jsonbin.io/v3/b/'
 };
 
+// LocalStorage Keys
+const STORAGE_KEYS = {
+    RESOURCES: 'campus_resources',
+    THEME: 'campus_theme',
+    USER_PROFILE: 'campus_user_profile'
+};
+
+// Resource Categories
+const CATEGORIES = {
+    STUDY_SPACE: 'study-space',
+    SPORTS_FACILITY: 'sports-facility',
+    MEETING_ROOM: 'meeting-room',
+    TECH_EQUIPMENT: 'tech-equipment',
+    SPORTS_EQUIPMENT: 'sports-equipment'
+};
+
+// Booking Types
+const BOOKING_TYPES = {
+    TIME_SLOT: 'time',
+    QUANTITY: 'quantity'
+};
+
 // Default resources data
 const defaultResources = [
+    // Study Spaces - Time-based booking
     {
         id: 1,
-        name: "Study Room A",
-        type: "Study Room",
-        location: "Library - 2nd Floor",
-        status: "available",
+        name: "Library Study Room (25-30 seats)",
+        category: CATEGORIES.STUDY_SPACE,
+        location: "Library - 1st Floor",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 30,
         bookings: []
     },
     {
         id: 2,
-        name: "Sports Turf",
-        type: "Turf",
-        location: "Sports Complex",
-        status: "available",
+        name: "Study Room 2 (25-30 seats)",
+        category: CATEGORIES.STUDY_SPACE,
+        location: "Library - 1st Floor",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 28,
         bookings: []
     },
+    
+    // Sports Facilities - Time-based booking (one per slot)
     {
         id: 3,
-        name: "MacBook Pro",
-        type: "Laptop",
-        location: "IT Department",
-        status: "booked",
+        name: "Sports Turf",
+        category: CATEGORIES.SPORTS_FACILITY,
+        location: "Sports Complex",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 1,
         bookings: []
     },
     {
         id: 4,
-        name: "USB-C Charger",
-        type: "Charger",
-        location: "Student Center",
-        status: "available",
+        name: "Basketball Court",
+        category: CATEGORIES.SPORTS_FACILITY,
+        location: "Sports Complex",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 1,
         bookings: []
     },
     {
         id: 5,
-        name: "Conference Room B",
-        type: "Meeting Room",
-        location: "Admin Block - 3rd Floor",
-        status: "available",
+        name: "Volleyball Court",
+        category: CATEGORIES.SPORTS_FACILITY,
+        location: "Sports Complex",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 1,
         bookings: []
     },
+    
+    // Meeting Rooms - Time-based booking
     {
         id: 6,
-        name: "Dell 27-inch Monitor",
-        type: "Monitor",
-        location: "Computer Lab 1",
-        status: "available",
+        name: "Meeting Room 1",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 10,
         bookings: []
     },
     {
         id: 7,
-        name: "Basketball Set",
-        type: "Sports Equipment",
+        name: "Meeting Room 2",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 15,
+        bookings: []
+    },
+    {
+        id: 8,
+        name: "Meeting Room 3",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 10,
+        bookings: []
+    },
+    {
+        id: 9,
+        name: "Meeting Room 4",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 15,
+        bookings: []
+    },
+    {
+        id: 10,
+        name: "Meeting Room 5",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 20,
+        bookings: []
+    },
+    {
+        id: 11,
+        name: "Meeting Room 6",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 10,
+        bookings: []
+    },
+    {
+        id: 12,
+        name: "Meeting Room 7",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 15,
+        bookings: []
+    },
+    {
+        id: 13,
+        name: "Meeting Room 8",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 10,
+        bookings: []
+    },
+    {
+        id: 14,
+        name: "Meeting Room 9",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 15,
+        bookings: []
+    },
+    {
+        id: 15,
+        name: "Meeting Room 10",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 20,
+        bookings: []
+    },
+    {
+        id: 16,
+        name: "Meeting Room 11",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 10,
+        bookings: []
+    },
+    {
+        id: 17,
+        name: "Meeting Room 12",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 15,
+        bookings: []
+    },
+    {
+        id: 18,
+        name: "Meeting Room 13",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 10,
+        bookings: []
+    },
+    {
+        id: 19,
+        name: "Meeting Room 14",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 15,
+        bookings: []
+    },
+    {
+        id: 20,
+        name: "Meeting Room 15",
+        category: CATEGORIES.MEETING_ROOM,
+        location: "Admin Block",
+        bookingType: BOOKING_TYPES.TIME_SLOT,
+        capacity: 20,
+        bookings: []
+    },
+    
+    // Tech Equipment - Quantity-based (issue system)
+    {
+        id: 21,
+        name: "Dell Laptops",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "IT Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 4,
+        bookings: []
+    },
+    {
+        id: 22,
+        name: "HP Laptops",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "IT Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 3,
+        bookings: []
+    },
+    {
+        id: 23,
+        name: "Lenovo Laptops",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "IT Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 3,
+        bookings: []
+    },
+    {
+        id: 24,
+        name: "MacBook Pro",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "IT Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 2,
+        bookings: []
+    },
+    {
+        id: 25,
+        name: "MacBook Air",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "IT Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 2,
+        bookings: []
+    },
+    {
+        id: 26,
+        name: "USB-C Chargers",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "IT Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 8,
+        bookings: []
+    },
+    {
+        id: 27,
+        name: "Dell Chargers",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "IT Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 4,
+        bookings: []
+    },
+    {
+        id: 28,
+        name: "HP Chargers",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "IT Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 3,
+        bookings: []
+    },
+    {
+        id: 29,
+        name: "MacBook Chargers",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "IT Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 4,
+        bookings: []
+    },
+    {
+        id: 30,
+        name: "Epson Projectors",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "IT Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 2,
+        bookings: []
+    },
+    {
+        id: 31,
+        name: "BenQ Projectors",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "IT Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 2,
+        bookings: []
+    },
+    {
+        id: 32,
+        name: "Canon DSLR Cameras",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "Media Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 2,
+        bookings: []
+    },
+    {
+        id: 33,
+        name: "Sony Mirrorless Cameras",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "Media Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 2,
+        bookings: []
+    },
+    {
+        id: 34,
+        name: "Nikon DSLR Cameras",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "Media Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 1,
+        bookings: []
+    },
+    {
+        id: 35,
+        name: "Dell 24-inch Monitors",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "IT Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 5,
+        bookings: []
+    },
+    {
+        id: 36,
+        name: "LG 27-inch Monitors",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "IT Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 3,
+        bookings: []
+    },
+    {
+        id: 37,
+        name: "Samsung Curved Monitors",
+        category: CATEGORIES.TECH_EQUIPMENT,
+        location: "IT Department",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 2,
+        bookings: []
+    },
+    
+    // Sports Equipment - Quantity-based
+    {
+        id: 38,
+        name: "Basketballs",
+        category: CATEGORIES.SPORTS_EQUIPMENT,
         location: "Sports Complex",
-        status: "booked",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 2,
+        bookings: []
+    },
+    {
+        id: 39,
+        name: "Footballs",
+        category: CATEGORIES.SPORTS_EQUIPMENT,
+        location: "Sports Complex",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 2,
+        bookings: []
+    },
+    {
+        id: 40,
+        name: "Badminton Kits",
+        category: CATEGORIES.SPORTS_EQUIPMENT,
+        location: "Sports Complex",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 2,
+        bookings: []
+    },
+    {
+        id: 41,
+        name: "Cricket Kits",
+        category: CATEGORIES.SPORTS_EQUIPMENT,
+        location: "Sports Complex",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 2,
+        bookings: []
+    },
+    {
+        id: 42,
+        name: "Volleyballs",
+        category: CATEGORIES.SPORTS_EQUIPMENT,
+        location: "Sports Complex",
+        bookingType: BOOKING_TYPES.QUANTITY,
+        totalQuantity: 2,
         bookings: []
     }
 ];
@@ -81,6 +434,14 @@ let autoRefreshInterval = null;
 let lastRefreshTime = null;
 let refreshTimerInterval = null;
 
+// Open terms modal
+function openTermsModal() {
+    const termsModal = document.getElementById('terms-modal');
+    if (termsModal) {
+        termsModal.classList.remove('hidden');
+    }
+}
+
 // Update theme icon based on current theme
 function updateThemeIcon() {
     const themeIcon = document.querySelector('.theme-icon');
@@ -96,7 +457,7 @@ document.addEventListener('DOMContentLoaded', function() {
     checkAndShowUserRegistration();
 
     // Load and apply saved theme
-    const savedTheme = localStorage.getItem('campus_theme');
+    const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME);
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-theme');
         updateThemeIcon();
@@ -109,7 +470,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.classList.toggle('dark-theme');
             
             const isDark = document.body.classList.contains('dark-theme');
-            localStorage.setItem('campus_theme', isDark ? 'dark' : 'light');
+            localStorage.setItem(STORAGE_KEYS.THEME, isDark ? 'dark' : 'light');
             
             updateThemeIcon();
         });
@@ -262,6 +623,57 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Profile dropdown functionality
+    const userAvatar = document.getElementById('user-avatar');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    if (userAvatar && profileDropdown) {
+        userAvatar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            profileDropdown.classList.toggle('hidden');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-profile-wrapper')) {
+                profileDropdown.classList.add('hidden');
+            }
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem(STORAGE_KEYS.USER_PROFILE);
+                location.reload();
+            }
+        });
+    }
+
+    // Search and filter functionality
+    const searchInput = document.getElementById('resource-search');
+    const categoryFilter = document.getElementById('category-filter');
+    const availabilityFilter = document.getElementById('availability-filter');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            filterAndRenderResources();
+        });
+    }
+
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', function() {
+            filterAndRenderResources();
+        });
+    }
+
+    if (availabilityFilter) {
+        availabilityFilter.addEventListener('change', function() {
+            filterAndRenderResources();
+        });
+    }
+
     // Terms and conditions modal handlers
     const termsLink = document.getElementById('terms-link');
     const termsModal = document.getElementById('terms-modal');
@@ -291,7 +703,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
+    
     // Mobile menu toggle functionality
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const sidebarElement = document.getElementById('sidebar');
@@ -455,7 +867,7 @@ function fetchFromAPI() {
     })
     .catch(function(error) {
         console.error('API Fetch Error:', error);
-        const stored = localStorage.getItem('campus_resources');
+        const stored = localStorage.getItem(STORAGE_KEYS.RESOURCES);
         if (stored) {
             return JSON.parse(stored);
         }
@@ -479,12 +891,12 @@ function saveToAPI(resources) {
         return response.json();
     })
     .then(function(data) {
-        localStorage.setItem('campus_resources', JSON.stringify(resources));
+        localStorage.setItem(STORAGE_KEYS.RESOURCES, JSON.stringify(resources));
         return data;
     })
     .catch(function(error) {
         console.error('API Save Error:', error);
-        localStorage.setItem('campus_resources', JSON.stringify(resources));
+        localStorage.setItem(STORAGE_KEYS.RESOURCES, JSON.stringify(resources));
         throw error;
     });
 }
@@ -511,12 +923,27 @@ function showNotification(message, type) {
 
 // Load resources from localStorage or use defaults
 function loadResources() {
-    const stored = localStorage.getItem('campus_resources');
+    const stored = localStorage.getItem(STORAGE_KEYS.RESOURCES);
     
     if (stored) {
-        return JSON.parse(stored);
+        try {
+            const resources = JSON.parse(stored);
+            // Check if resources need migration (old format with 'type' instead of 'category')
+            if (resources.length > 0 && resources[0].type && !resources[0].category) {
+                console.log('Migrating old resource data format...');
+                // Clear old data and use new defaults
+                localStorage.removeItem(STORAGE_KEYS.RESOURCES);
+                localStorage.setItem(STORAGE_KEYS.RESOURCES, JSON.stringify(defaultResources));
+                return defaultResources;
+            }
+            return resources;
+        } catch (error) {
+            console.error('Error parsing stored resources:', error);
+            localStorage.setItem(STORAGE_KEYS.RESOURCES, JSON.stringify(defaultResources));
+            return defaultResources;
+        }
     } else {
-        localStorage.setItem('campus_resources', JSON.stringify(defaultResources));
+        localStorage.setItem(STORAGE_KEYS.RESOURCES, JSON.stringify(defaultResources));
         return defaultResources;
     }
 }
@@ -525,7 +952,7 @@ function loadResources() {
 function refreshResources(showNotifications = true) {
     fetchFromAPI()
         .then(function(resources) {
-            localStorage.setItem('campus_resources', JSON.stringify(resources));
+            localStorage.setItem(STORAGE_KEYS.RESOURCES, JSON.stringify(resources));
             
             // Update last refresh time
             lastRefreshTime = Date.now();
@@ -576,7 +1003,7 @@ function updateRefreshTimestamp() {
 
 // Save resources to localStorage and JSONbin.io
 function saveResources(resources) {
-    localStorage.setItem('campus_resources', JSON.stringify(resources));
+    localStorage.setItem(STORAGE_KEYS.RESOURCES, JSON.stringify(resources));
     
     saveToAPI(resources)
         .then(function() {
@@ -593,27 +1020,50 @@ function createResourceCard(resource) {
     card.className = 'resource-card';
     
     const status = calculateResourceStatus(resource);
+    const categoryInfo = getCategoryInfo(resource.category);
+    
+    // Format category name for display
+    const categoryDisplay = resource.category
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
     
     card.innerHTML = `
+        <div class="resource-category-badge" style="background-color: ${categoryInfo.color}20; color: ${categoryInfo.color};">
+            ${categoryInfo.icon} ${categoryDisplay}
+        </div>
         <h3 class="resource-name">${resource.name}</h3>
-        <p class="resource-type"><strong>Type:</strong> ${resource.type}</p>
         <p class="resource-location"><strong>Location:</strong> ${resource.location}</p>
+        ${resource.bookingType === BOOKING_TYPES.TIME_SLOT ? 
+            `<p class="resource-capacity"><strong>Capacity:</strong> ${resource.capacity} ${resource.category === CATEGORIES.STUDY_SPACE ? 'seats' : 'person(s)'}</p>` :
+            `<p class="resource-quantity"><strong>Total Quantity:</strong> ${resource.totalQuantity}</p>`
+        }
         <p class="resource-status">
             <strong>Status:</strong> 
             <span class="${status.className}">${status.text}</span>
         </p>
         <button class="book-btn" data-id="${resource.id}">
-            Book Now
+            ${resource.bookingType === BOOKING_TYPES.TIME_SLOT ? 'Book Now' : 'Issue Equipment'}
         </button>
     `;
     
     return card;
 }
 
-// Calculate resource status for selected date
+// Calculate resource status based on booking type
 function calculateResourceStatus(resource) {
-    const totalSlots = 22;
+    if (resource.bookingType === BOOKING_TYPES.TIME_SLOT) {
+        return calculateTimeSlotStatus(resource);
+    } else if (resource.bookingType === BOOKING_TYPES.QUANTITY) {
+        return calculateQuantityStatus(resource);
+    }
     
+    return { text: 'Unknown', className: 'status-unknown' };
+}
+
+// Calculate status for time-slot based resources
+function calculateTimeSlotStatus(resource) {
+    const totalSlots = 22; // 9 AM - 8 PM in 30-min intervals
     let bookedSlots = 0;
     
     if (resource.bookings) {
@@ -627,38 +1077,103 @@ function calculateResourceStatus(resource) {
     if (bookedSlots === 0) {
         return { text: 'Available', className: 'status-available' };
     } else if (bookedSlots < totalSlots) {
-        return { text: 'Partially Booked', className: 'status-partial' };
+        const availableSlots = totalSlots - bookedSlots;
+        return { 
+            text: `${availableSlots} slots available`, 
+            className: 'status-partial' 
+        };
     } else {
         return { text: 'Fully Booked', className: 'status-full' };
     }
 }
 
+// Calculate status for quantity-based resources
+function calculateQuantityStatus(resource) {
+    const available = calculateAvailableQuantity(resource);
+    const total = resource.totalQuantity;
+    
+    if (available === total) {
+        return { 
+            text: `All ${total} available`, 
+            className: 'status-available' 
+        };
+    } else if (available > 0) {
+        return { 
+            text: `${available} of ${total} available`, 
+            className: 'status-partial' 
+        };
+    } else {
+        return { 
+            text: 'Out of Stock', 
+            className: 'status-full' 
+        };
+    }
+}
+
 // Render all resources to the view
 function renderResources() {
+    filterAndRenderResources();
+}
+
+// Filter and render resources based on search and filter criteria
+function filterAndRenderResources() {
     const container = document.getElementById('resources-view');
     
-    if (!container) return;
-    
-    // Clear existing content except heading and date picker
-    const heading = container.querySelector('h2');
-    const dateSelector = container.querySelector('.date-selector');
-    container.innerHTML = '';
-    if (heading) {
-        container.appendChild(heading);
+    if (!container) {
+        console.error('Resources view container not found');
+        return;
     }
-    if (dateSelector) {
-        container.appendChild(dateSelector);
+    
+    // Get filter values
+    const searchTerm = document.getElementById('resource-search') ? document.getElementById('resource-search').value.toLowerCase() : '';
+    const categoryFilter = document.getElementById('category-filter') ? document.getElementById('category-filter').value : 'all';
+    const availabilityFilter = document.getElementById('availability-filter') ? document.getElementById('availability-filter').value : 'all';
+    
+    // Remove existing grid if it exists
+    const existingGrid = container.querySelector('.resources-grid');
+    if (existingGrid) {
+        existingGrid.remove();
+    }
+    
+    // Remove existing message if it exists
+    const existingMessage = container.querySelector('.message');
+    if (existingMessage) {
+        existingMessage.remove();
     }
     
     // Create a grid container for cards
     const grid = document.createElement('div');
     grid.className = 'resources-grid';
     
-    // Load and render resources
-    const resources = loadResources();
+    // Load and filter resources
+    let resources = loadResources();
+    console.log('Rendering resources:', resources.length, 'resources found');
+    
+    // Apply filters
+    resources = resources.filter(function(resource) {
+        // Search filter
+        const matchesSearch = !searchTerm || 
+            resource.name.toLowerCase().includes(searchTerm) ||
+            resource.location.toLowerCase().includes(searchTerm);
+        
+        // Category filter
+        const matchesCategory = categoryFilter === 'all' || resource.category === categoryFilter;
+        
+        // Availability filter
+        let matchesAvailability = true;
+        if (availabilityFilter === 'available') {
+            const status = calculateResourceStatus(resource);
+            matchesAvailability = status.available > 0;
+        } else if (availabilityFilter === 'unavailable') {
+            const status = calculateResourceStatus(resource);
+            matchesAvailability = status.available === 0;
+        }
+        
+        return matchesSearch && matchesCategory && matchesAvailability;
+    });
     
     if (resources.length === 0) {
-        showMessage(container, 'No resources available right now.', 'info');
+        showMessage(container, 'No resources match your search criteria.', 'info');
         return;
     }
     
@@ -668,6 +1183,7 @@ function renderResources() {
     });
     
     container.appendChild(grid);
+    console.log('Resources rendered successfully');
 }
 
 // Render bookings view
@@ -751,17 +1267,86 @@ function createBookingCard(booking) {
     header.appendChild(resourceName);
     header.appendChild(date);
     
-    const slotsContainer = document.createElement('div');
-    slotsContainer.className = 'booking-slots';
+    const detailsContainer = document.createElement('div');
+    detailsContainer.className = 'booking-details';
     
+    // Display booking details based on type
     if (booking.slots && booking.slots.length > 0) {
+        // Time-slot booking
         const slotsLabel = document.createElement('strong');
         slotsLabel.textContent = 'Time Slots: ';
-        slotsContainer.appendChild(slotsLabel);
+        detailsContainer.appendChild(slotsLabel);
         
         const slotsText = document.createElement('span');
         slotsText.textContent = booking.slots.join(', ');
-        slotsContainer.appendChild(slotsText);
+        detailsContainer.appendChild(slotsText);
+        detailsContainer.appendChild(document.createElement('br'));
+        
+        // Additional info for specific categories
+        if (booking.purpose) {
+            const purposeLabel = document.createElement('strong');
+            purposeLabel.textContent = 'Purpose: ';
+            detailsContainer.appendChild(purposeLabel);
+            
+            const purposeText = document.createElement('span');
+            purposeText.textContent = booking.purpose;
+            detailsContainer.appendChild(purposeText);
+            detailsContainer.appendChild(document.createElement('br'));
+        }
+        
+        if (booking.meetingTitle) {
+            const titleLabel = document.createElement('strong');
+            titleLabel.textContent = 'Meeting: ';
+            detailsContainer.appendChild(titleLabel);
+            
+            const titleText = document.createElement('span');
+            titleText.textContent = booking.meetingTitle;
+            detailsContainer.appendChild(titleText);
+            detailsContainer.appendChild(document.createElement('br'));
+        }
+        
+        if (booking.meetingSize) {
+            const sizeLabel = document.createElement('strong');
+            sizeLabel.textContent = 'Attendees: ';
+            detailsContainer.appendChild(sizeLabel);
+            
+            const sizeText = document.createElement('span');
+            sizeText.textContent = booking.meetingSize;
+            detailsContainer.appendChild(sizeText);
+            detailsContainer.appendChild(document.createElement('br'));
+        }
+    } else if (booking.quantity) {
+        // Quantity-based booking
+        const quantityLabel = document.createElement('strong');
+        quantityLabel.textContent = 'Quantity: ';
+        detailsContainer.appendChild(quantityLabel);
+        
+        const quantityText = document.createElement('span');
+        quantityText.textContent = booking.quantity + ' unit(s)';
+        detailsContainer.appendChild(quantityText);
+        detailsContainer.appendChild(document.createElement('br'));
+        
+        if (booking.issueReason) {
+            const reasonLabel = document.createElement('strong');
+            reasonLabel.textContent = 'Reason: ';
+            detailsContainer.appendChild(reasonLabel);
+            
+            const reasonText = document.createElement('span');
+            reasonText.textContent = booking.issueReason;
+            detailsContainer.appendChild(reasonText);
+            detailsContainer.appendChild(document.createElement('br'));
+        }
+        
+        if (booking.purpose) {
+            const purposeLabel = document.createElement('strong');
+            purposeLabel.textContent = 'Purpose: ';
+            detailsContainer.appendChild(purposeLabel);
+            
+            const purposeText = document.createElement('span');
+            purposeText.textContent = booking.purpose;
+            detailsContainer.appendChild(purposeText);
+            detailsContainer.appendChild(document.createElement('br'));
+        }
     }
     
     // Add actions container with cancel button
@@ -769,23 +1354,23 @@ function createBookingCard(booking) {
     actionsContainer.className = 'booking-actions';
     
     const cancelBtn = document.createElement('button');
-    cancelBtn.className = 'cancel-booking-btn';
-    cancelBtn.textContent = 'Cancel';
+    cancelBtn.className = 'btn-cancel';
+    cancelBtn.textContent = 'Cancel Booking';
     cancelBtn.onclick = function() {
-        cancelBooking(booking.resourceId, booking.date, booking.slots);
+        cancelBooking(booking.resourceId, booking);
     };
     
     actionsContainer.appendChild(cancelBtn);
     
     card.appendChild(header);
-    card.appendChild(slotsContainer);
+    card.appendChild(detailsContainer);
     card.appendChild(actionsContainer);
     
     return card;
 }
 
 // Cancel a booking
-function cancelBooking(resourceId, date, slots) {
+function cancelBooking(resourceId, booking) {
     if (!confirm('Are you sure you want to cancel this booking?')) {
         return;
     }
@@ -802,17 +1387,30 @@ function cancelBooking(resourceId, date, slots) {
     const userName = userData ? userData.name : 'Student';
     
     // Find and remove the booking
-    const bookingIndex = resource.bookings.findIndex(b => 
-        b.user === userName && 
-        b.date === date && 
-        JSON.stringify(b.slots) === JSON.stringify(slots)
-    );
+    let bookingIndex = -1;
+    
+    if (booking.slots) {
+        // Time-slot booking
+        bookingIndex = resource.bookings.findIndex(b => 
+            b.user === userName && 
+            b.date === booking.date && 
+            JSON.stringify(b.slots) === JSON.stringify(booking.slots)
+        );
+    } else if (booking.quantity) {
+        // Quantity-based booking
+        bookingIndex = resource.bookings.findIndex(b => 
+            b.user === userName && 
+            b.date === booking.date && 
+            b.quantity === booking.quantity &&
+            (b.issueReason === booking.issueReason || b.purpose === booking.purpose)
+        );
+    }
     
     if (bookingIndex !== -1) {
         resource.bookings.splice(bookingIndex, 1);
         saveResources(resources);
         renderBookings();
-        alert('Booking cancelled successfully!');
+        showNotification('Booking cancelled successfully!', 'success');
         
         // Refresh other views if needed
         if (currentView === 'dashboard') {
@@ -825,28 +1423,235 @@ function cancelBooking(resourceId, date, slots) {
     }
 }
 
-// Open booking modal
+// Open booking modal with dynamic content based on resource category
 function openBookingModal() {
     const modal = document.getElementById('booking-modal');
-    if (modal) {
-        startSlot = null;
-        endSlot = null;
-        modal.classList.remove('hidden');
-        document.getElementById('error-message').classList.add('hidden');
-        
-        // Update modal header with selected date
-        const modalTitle = modal.querySelector('.modal-header h3');
-        if (modalTitle) {
-            const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric'
-            });
-            modalTitle.textContent = `Book Resource - ${formattedDate}`;
-        }
-        
-        renderSlots();
+    if (!modal) return;
+    
+    const resources = loadResources();
+    const resource = resources.find(r => r.id === currentResourceId);
+    
+    if (!resource) {
+        alert('Resource not found');
+        return;
     }
+    
+    startSlot = null;
+    endSlot = null;
+    modal.classList.remove('hidden');
+    
+    // Render dynamic modal content based on category
+    renderModalContent(resource);
+    
+    // Hide error message after rendering
+    setTimeout(() => {
+        const errorMsg = document.getElementById('error-message');
+        if (errorMsg) {
+            errorMsg.classList.add('hidden');
+        }
+    }, 10);
+}
+
+// Render modal content dynamically based on resource category
+function renderModalContent(resource) {
+    const modal = document.getElementById('booking-modal');
+    const form = document.getElementById('booking-form');
+    const modalTitle = modal.querySelector('.modal-header h3');
+    
+    // Update modal title
+    modalTitle.textContent = `Book ${resource.name}`;
+    
+    // Clear form content but preserve structure
+    form.innerHTML = '';
+    
+    // Render category-specific content
+    if (resource.bookingType === BOOKING_TYPES.TIME_SLOT) {
+        renderTimeSlotModalForm(form, resource);
+    } else if (resource.bookingType === BOOKING_TYPES.QUANTITY) {
+        renderQuantityModalForm(form, resource);
+    }
+}
+
+// Render time-slot booking form (Study Spaces, Sports Facilities, Meeting Rooms)
+function renderTimeSlotModalForm(form, resource) {
+    const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+    });
+    
+    const categoryInfo = getCategoryInfo(resource.category);
+    
+    form.innerHTML = `
+        <div class="booking-info">
+            <p><strong>Resource:</strong> ${resource.name}</p>
+            <p><strong>Location:</strong> ${resource.location}</p>
+            <p><strong>Date:</strong> ${formattedDate}</p>
+            ${resource.category === CATEGORIES.SPORTS_FACILITY ? 
+                '<p class="info-message">⚠️ Only one booking allowed per time slot</p>' : 
+                `<p><strong>Capacity:</strong> ${resource.capacity} seats</p>`}
+        </div>
+        
+        ${resource.category === CATEGORIES.STUDY_SPACE ? `
+            <div class="form-group">
+                <label>Purpose of booking:</label>
+                <select id="booking-purpose" required>
+                    <option value="">Select purpose</option>
+                    <option value="Group Study">Group Study</option>
+                    <option value="Individual Study">Individual Study</option>
+                    <option value="Project Work">Project Work</option>
+                    <option value="Exam Preparation">Exam Preparation</option>
+                </select>
+            </div>
+        ` : ''}
+        
+        ${resource.category === CATEGORIES.MEETING_ROOM ? `
+            <div class="form-group">
+                <label>Meeting Title:</label>
+                <input type="text" id="meeting-title" required placeholder="Enter meeting title">
+            </div>
+            <div class="form-group">
+                <label>Expected Attendees:</label>
+                <input type="number" id="meeting-size" required min="1" max="${resource.capacity}" 
+                       placeholder="Number of attendees">
+            </div>
+        ` : ''}
+        
+        <div class="form-group">
+            <label>Select Time Slots:</label>
+            <p class="helper-text">Click to select start and end time</p>
+            <div id="slots-container" class="slots-grid"></div>
+        </div>
+        
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="terms-checkbox">
+                I agree to the <a href="#" id="view-terms-link">terms and conditions</a>
+            </label>
+        </div>
+        
+        <div id="error-message" class="error-message hidden"></div>
+        
+        <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeBookingModal()">Cancel</button>
+            <button type="submit" class="btn-primary">Confirm Booking</button>
+        </div>
+    `;
+    
+    // Render time slots after DOM update
+    setTimeout(function() {
+        renderSlots();
+    }, 10);
+    
+    // Add terms link handler
+    const termsLink = document.getElementById('view-terms-link');
+    if (termsLink) {
+        termsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            openTermsModal();
+        });
+    }
+}
+
+// Render quantity-based booking form (Tech Equipment, Sports Equipment)
+function renderQuantityModalForm(form, resource) {
+    const availableQuantity = calculateAvailableQuantity(resource);
+    const categoryInfo = getCategoryInfo(resource.category);
+    
+    form.innerHTML = `
+        <div class="booking-info">
+            <p><strong>Equipment:</strong> ${resource.name}</p>
+            <p><strong>Location:</strong> ${resource.location}</p>
+            <p><strong>Available:</strong> <span class="availability-badge">${availableQuantity} of ${resource.totalQuantity}</span></p>
+        </div>
+        
+        <div class="form-group">
+            <label>Quantity Needed:</label>
+            <input type="number" id="quantity-input" required min="1" max="${availableQuantity}" 
+                   value="1" placeholder="Enter quantity">
+            <p class="helper-text">Maximum available: ${availableQuantity}</p>
+        </div>
+        
+        ${resource.category === CATEGORIES.TECH_EQUIPMENT ? `
+            <div class="form-group">
+                <label>Reason for Issue: <span class="required">*</span></label>
+                <textarea id="issue-reason" required rows="3" 
+                          placeholder="Please specify why you need this equipment"></textarea>
+            </div>
+        ` : `
+            <div class="form-group">
+                <label>Purpose:</label>
+                <select id="equipment-purpose" required>
+                    <option value="">Select purpose</option>
+                    <option value="Practice">Practice</option>
+                    <option value="Tournament">Tournament</option>
+                    <option value="Recreational">Recreational</option>
+                    <option value="Training">Training</option>
+                </select>
+            </div>
+        `}
+        
+        <div class="form-group">
+            <label>Date Needed:</label>
+            <input type="date" id="issue-date" required value="${selectedDate}" min="${getTodayDate()}">
+        </div>
+        
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="terms-checkbox">
+                I agree to the <a href="#" id="view-terms-link">terms and conditions</a>
+            </label>
+        </div>
+        
+        <div id="error-message" class="error-message hidden"></div>
+        
+        <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeBookingModal()">Cancel</button>
+            <button type="submit" class="btn-primary">Confirm Issue</button>
+        </div>
+    `;
+    
+    // Add terms link handler
+    const termsLink = document.getElementById('view-terms-link');
+    if (termsLink) {
+        termsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            openTermsModal();
+        });
+    }
+}
+
+// Calculate available quantity for equipment
+function calculateAvailableQuantity(resource) {
+    if (!resource || resource.bookingType !== BOOKING_TYPES.QUANTITY) {
+        return 0;
+    }
+    
+    let bookedQuantity = 0;
+    
+    if (resource.bookings && resource.bookings.length > 0) {
+        resource.bookings.forEach(function(booking) {
+            // Count only active bookings (you can add date filtering if needed)
+            if (booking.quantity) {
+                bookedQuantity += booking.quantity;
+            }
+        });
+    }
+    
+    return resource.totalQuantity - bookedQuantity;
+}
+
+// Get category-specific information
+function getCategoryInfo(category) {
+    const categoryMap = {
+        [CATEGORIES.STUDY_SPACE]: { icon: '📚', color: '#3b82f6' },
+        [CATEGORIES.SPORTS_FACILITY]: { icon: '⚽', color: '#10b981' },
+        [CATEGORIES.MEETING_ROOM]: { icon: '👥', color: '#8b5cf6' },
+        [CATEGORIES.TECH_EQUIPMENT]: { icon: '💻', color: '#f59e0b' },
+        [CATEGORIES.SPORTS_EQUIPMENT]: { icon: '🏀', color: '#ef4444' }
+    };
+    
+    return categoryMap[category] || { icon: '📦', color: '#6b7280' };
 }
 
 // Close booking modal
@@ -857,10 +1662,9 @@ function closeBookingModal() {
         modal.classList.add('hidden');
     }
     if (form) {
-        form.reset();
+        form.innerHTML = '';
     }
-    document.getElementById('error-message').classList.add('hidden');
-    document.getElementById('slots-container').innerHTML = '';
+    
     currentResourceId = null;
     startSlot = null;
     endSlot = null;
@@ -908,9 +1712,16 @@ function getBookedSlots(date) {
 // Render slots in the modal
 function renderSlots() {
     const container = document.getElementById('slots-container');
+    
+    if (!container) {
+        console.error('Slots container not found');
+        return;
+    }
+    
     container.innerHTML = '';
     
     const slots = generateSlots();
+    console.log('Generating', slots.length, 'time slots');
     
     // Get already booked slots for the selected date
     const bookedSlots = getBookedSlots(selectedDate);
@@ -934,6 +1745,8 @@ function renderSlots() {
         
         container.appendChild(button);
     });
+    
+    console.log('Rendered', slots.length, 'time slot buttons');
 }
 
 // Handle slot button clicks
@@ -1006,12 +1819,36 @@ function handleBookingSubmit(event) {
     const errorMsg = document.getElementById('error-message');
     const termsCheckbox = document.getElementById('terms-checkbox');
     
-    if (!termsCheckbox.checked) {
-        errorMsg.textContent = 'Please agree to the terms and conditions';
-        errorMsg.classList.remove('hidden');
+    if (!termsCheckbox || !termsCheckbox.checked) {
+        if (errorMsg) {
+            errorMsg.textContent = 'Please agree to the terms and conditions';
+            errorMsg.classList.remove('hidden');
+        }
         return;
     }
     
+    // Load resources
+    const resources = loadResources();
+    const resource = resources.find(r => r.id === currentResourceId);
+    
+    if (!resource) {
+        if (errorMsg) {
+            errorMsg.textContent = 'Resource not found';
+            errorMsg.classList.remove('hidden');
+        }
+        return;
+    }
+    
+    // Handle based on booking type
+    if (resource.bookingType === BOOKING_TYPES.TIME_SLOT) {
+        handleTimeSlotBooking(resource, resources, errorMsg);
+    } else if (resource.bookingType === BOOKING_TYPES.QUANTITY) {
+        handleQuantityBooking(resource, resources, errorMsg);
+    }
+}
+
+// Handle time-slot based booking
+function handleTimeSlotBooking(resource, resources, errorMsg) {
     const selectedSlots = getSelectedSlots();
     
     if (selectedSlots.length === 0) {
@@ -1033,26 +1870,6 @@ function handleBookingSubmit(event) {
         }
     }
     
-    // Create booking object
-    const userData = getUserProfile();
-    const userName = userData ? userData.name : 'Student';
-    
-    const newBooking = {
-        user: userName,
-        date: selectedDate,
-        slots: selectedSlots
-    };
-    
-    // Load resources
-    const resources = loadResources();
-    const resource = resources.find(r => r.id === currentResourceId);
-    
-    if (!resource) {
-        errorMsg.textContent = 'Resource not found';
-        errorMsg.classList.remove('hidden');
-        return;
-    }
-    
     // Check for conflicts
     for (let booking of resource.bookings) {
         if (booking.date === selectedDate) {
@@ -1066,13 +1883,109 @@ function handleBookingSubmit(event) {
         }
     }
     
+    // Create booking object
+    const userData = getUserProfile();
+    const userName = userData ? userData.name : 'Student';
+    
+    const newBooking = {
+        user: userName,
+        date: selectedDate,
+        slots: selectedSlots,
+        startSlot: startSlot,
+        endSlot: endSlot || startSlot
+    };
+    
+    // Add category-specific fields
+    if (resource.category === CATEGORIES.STUDY_SPACE) {
+        const purpose = document.getElementById('booking-purpose');
+        if (purpose && purpose.value) {
+            newBooking.purpose = purpose.value;
+        }
+    } else if (resource.category === CATEGORIES.MEETING_ROOM) {
+        const meetingTitle = document.getElementById('meeting-title');
+        const meetingSize = document.getElementById('meeting-size');
+        
+        if (meetingTitle && meetingTitle.value) {
+            newBooking.meetingTitle = meetingTitle.value;
+        }
+        if (meetingSize && meetingSize.value) {
+            const size = parseInt(meetingSize.value);
+            if (size > resource.capacity) {
+                errorMsg.textContent = `Meeting size cannot exceed room capacity of ${resource.capacity}`;
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            newBooking.meetingSize = size;
+        }
+    }
+    
     // Save booking
     resource.bookings.push(newBooking);
-    
-    // Save to localStorage and API
     saveResources(resources);
     
-    // Close modal and refresh view
+    showNotification(`Successfully booked ${resource.name} for ${selectedSlots.length} time slot(s)`, 'success');
+    closeBookingModal();
+    renderResources();
+}
+
+// Handle quantity-based booking
+function handleQuantityBooking(resource, resources, errorMsg) {
+    const quantityInput = document.getElementById('quantity-input');
+    const issueDate = document.getElementById('issue-date');
+    
+    if (!quantityInput || !quantityInput.value) {
+        errorMsg.textContent = 'Please specify quantity needed';
+        errorMsg.classList.remove('hidden');
+        return;
+    }
+    
+    const requestedQuantity = parseInt(quantityInput.value);
+    const availableQuantity = calculateAvailableQuantity(resource);
+    
+    if (requestedQuantity > availableQuantity) {
+        errorMsg.textContent = `Only ${availableQuantity} unit(s) available`;
+        errorMsg.classList.remove('hidden');
+        return;
+    }
+    
+    if (requestedQuantity < 1) {
+        errorMsg.textContent = 'Please enter a valid quantity';
+        errorMsg.classList.remove('hidden');
+        return;
+    }
+    
+    // Create booking object
+    const userData = getUserProfile();
+    const userName = userData ? userData.name : 'Student';
+    
+    const newBooking = {
+        user: userName,
+        quantity: requestedQuantity,
+        issueDate: issueDate ? issueDate.value : selectedDate,
+        date: issueDate ? issueDate.value : selectedDate
+    };
+    
+    // Add category-specific fields
+    if (resource.category === CATEGORIES.TECH_EQUIPMENT) {
+        const issueReason = document.getElementById('issue-reason');
+        if (!issueReason || !issueReason.value.trim()) {
+            errorMsg.textContent = 'Please specify reason for equipment issue';
+            errorMsg.classList.remove('hidden');
+            return;
+        }
+        newBooking.issueReason = issueReason.value.trim();
+    } else if (resource.category === CATEGORIES.SPORTS_EQUIPMENT) {
+        const purpose = document.getElementById('equipment-purpose');
+        if (purpose && purpose.value) {
+            newBooking.purpose = purpose.value;
+        }
+    }
+    
+    // Save booking
+    resource.bookings.push(newBooking);
+    saveResources(resources);
+    
+    showNotification(`Successfully issued ${requestedQuantity} unit(s) of ${resource.name}`, 'success');
     closeBookingModal();
     renderResources();
 }
@@ -1592,31 +2505,46 @@ function renderResourceSummary(container, resources, allBookings, todayDate) {
     title.className = 'section-title';
     section.appendChild(title);
     
-    const typeCounts = {};
+    const categoryCounts = {};
     resources.forEach(function(resource) {
-        if (!typeCounts[resource.type]) {
-            typeCounts[resource.type] = { total: 0, availableToday: 0 };
+        if (!categoryCounts[resource.category]) {
+            categoryCounts[resource.category] = { total: 0, available: 0 };
         }
-        typeCounts[resource.type].total++;
+        categoryCounts[resource.category].total++;
         
-        const hasBookingToday = resource.bookings && resource.bookings.some(function(b) {
-            return b.date === todayDate;
-        });
-        
-        if (!hasBookingToday) {
-            typeCounts[resource.type].availableToday++;
+        // Check availability based on booking type
+        if (resource.bookingType === BOOKING_TYPES.TIME_SLOT) {
+            const hasBookingToday = resource.bookings && resource.bookings.some(function(b) {
+                return b.date === todayDate;
+            });
+            if (!hasBookingToday) {
+                categoryCounts[resource.category].available++;
+            }
+        } else if (resource.bookingType === BOOKING_TYPES.QUANTITY) {
+            const availableQty = calculateAvailableQuantity(resource);
+            if (availableQty > 0) {
+                categoryCounts[resource.category].available++;
+            }
         }
     });
     
     const summaryGrid = document.createElement('div');
     summaryGrid.className = 'summary-grid';
     
-    Object.keys(typeCounts).forEach(function(type) {
+    Object.keys(categoryCounts).forEach(function(category) {
         const card = document.createElement('div');
         card.className = 'summary-card';
+        
+        const categoryInfo = getCategoryInfo(category);
+        const categoryDisplay = category
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+        
         card.innerHTML = `
-            <div class="summary-type">${type}</div>
-            <div class="summary-stats">${typeCounts[type].availableToday} of ${typeCounts[type].total} available today</div>
+            <div class="summary-icon" style="color: ${categoryInfo.color};">${categoryInfo.icon}</div>
+            <div class="summary-type">${categoryDisplay}</div>
+            <div class="summary-stats">${categoryCounts[category].available} of ${categoryCounts[category].total} available</div>
         `;
         summaryGrid.appendChild(card);
     });
@@ -1901,13 +2829,13 @@ function calculateCalendarStats(bookingsByDate, month, year) {
 
 // Get user profile from localStorage
 function getUserProfile() {
-    const stored = localStorage.getItem('campus_user_profile');
+    const stored = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
     return stored ? JSON.parse(stored) : null;
 }
 
 // Save user profile to localStorage
 function saveUserProfile(profile) {
-    localStorage.setItem('campus_user_profile', JSON.stringify(profile));
+    localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(profile));
 }
 
 // Update UI with user profile data
@@ -1944,19 +2872,108 @@ function checkAndShowUserRegistration() {
         updateUserUI(userProfile);
     }
     
+    // Add input validation to prevent invalid characters
+    const nameInput = document.getElementById('user-name');
+    const phoneInput = document.getElementById('user-phone');
+    const rollInput = document.getElementById('user-roll');
+    const phoneValidation = document.getElementById('phone-validation');
+    const rollValidation = document.getElementById('roll-validation');
+    
+    if (nameInput) {
+        nameInput.addEventListener('input', function(e) {
+            // Only allow letters and spaces
+            this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+        });
+    }
+    
+    if (phoneInput && phoneValidation) {
+        phoneInput.addEventListener('input', function(e) {
+            // Only allow digits, max 10
+            this.value = this.value.replace(/[^\d]/g, '').slice(0, 10);
+            
+            if (this.value.length === 0) {
+                phoneValidation.textContent = '';
+                phoneValidation.classList.add('hidden');
+            } else if (this.value.length < 10) {
+                phoneValidation.textContent = `${this.value.length}/10 digits`;
+                phoneValidation.classList.remove('hidden');
+                phoneValidation.classList.add('error');
+                phoneValidation.classList.remove('success');
+            } else if (this.value.length === 10) {
+                phoneValidation.textContent = '✓ Valid phone number';
+                phoneValidation.classList.remove('hidden');
+                phoneValidation.classList.add('success');
+                phoneValidation.classList.remove('error');
+            }
+        });
+    }
+    
+    if (rollInput && rollValidation) {
+        rollInput.addEventListener('input', function(e) {
+            // Only allow digits, max 5
+            this.value = this.value.replace(/[^\d]/g, '').slice(0, 5);
+            
+            const rollNum = parseInt(this.value, 10);
+            
+            if (this.value.length === 0) {
+                rollValidation.textContent = '';
+                rollValidation.classList.add('hidden');
+            } else if (this.value.length < 5) {
+                rollValidation.textContent = `${this.value.length}/5 digits required`;
+                rollValidation.classList.remove('hidden');
+                rollValidation.classList.add('error');
+                rollValidation.classList.remove('success');
+            } else if (rollNum <= 10000) {
+                rollValidation.textContent = '✗ Roll number must be greater than 10000';
+                rollValidation.classList.remove('hidden');
+                rollValidation.classList.add('error');
+                rollValidation.classList.remove('success');
+            } else {
+                rollValidation.textContent = '✓ Valid roll number';
+                rollValidation.classList.remove('hidden');
+                rollValidation.classList.add('success');
+                rollValidation.classList.remove('error');
+            }
+        });
+    }
+    
     // Handle registration form submission
     const registrationForm = document.getElementById('user-registration-form');
     if (registrationForm) {
         registrationForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
+            const name = document.getElementById('user-name').value.trim();
+            const batch = document.getElementById('user-batch').value.trim();
+            const rollNumber = document.getElementById('user-roll').value.trim();
+            const phone = document.getElementById('user-phone').value.trim();
+            
+            // Final validation before submission
+            if (name.length < 3) {
+                alert('Please enter a valid name (at least 3 characters).');
+                return;
+            }
+            
+            if (phone.length !== 10) {
+                alert('Please enter a valid 10-digit phone number.');
+                return;
+            }
+            
+            const rollNum = parseInt(rollNumber, 10);
+            if (rollNumber.length !== 5 || rollNum <= 10000) {
+                alert('Please enter a valid roll number (5 digits, greater than 10000).');
+                return;
+            }
+            
             const profile = {
-                name: document.getElementById('user-name').value.trim(),
-                phone: document.getElementById('user-phone').value.trim(),
+                name: name,
+                batch: batch,
+                rollNumber: rollNumber,
+                phone: phone,
                 registeredAt: new Date().toISOString()
             };
             
-            if (profile.name && profile.phone) {
+            if (profile.name && profile.batch && profile.rollNumber && profile.phone) {
                 saveUserProfile(profile);
                 updateUserUI(profile);
                 
@@ -1968,7 +2985,7 @@ function checkAndShowUserRegistration() {
                 
                 // Show welcome message
                 setTimeout(function() {
-                    alert('Welcome to CampusSlot, ' + profile.name + '! \n\nYou can now start booking resources.');
+                    alert('Welcome to CampusSlot, ' + profile.name + '! \n\nClass of ' + profile.batch + '\nRoll No: ' + profile.rollNumber + '\n\nYou can now start booking resources.');
                 }, 300);
             }
         });
