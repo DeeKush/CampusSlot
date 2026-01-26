@@ -957,32 +957,31 @@ body {
     font-size: 1.1rem;
 }
 
-/* Refresh Button */
-.refresh-btn {
-    padding: 0.75rem 1.5rem;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
+/* Refresh Timestamp */
+.refresh-timestamp {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-left: 1rem;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-.refresh-btn:hover {
-    background-color: var(--secondary-color);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+.refresh-timestamp::before {
+    content: '•';
+    color: var(--success-color);
+    font-size: 1.2rem;
+    animation: pulse 2s ease-in-out infinite;
 }
 
-.refresh-btn:disabled {
-    background-color: var(--text-muted);
-    cursor: not-allowed;
-    transform: none;
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
 }
 
 /* Notification Messages */

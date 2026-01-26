@@ -82,6 +82,11 @@ let selectedDate = getTodayDate();
 let calendarMonth = new Date().getMonth();
 let calendarYear = new Date().getFullYear();
 
+// Global variable for auto-refresh interval
+let autoRefreshInterval = null;
+let lastRefreshTime = null;
+let refreshTimerInterval = null;
+
 // Update theme icon based on current theme
 function updateThemeIcon() {
     const themeIcon = document.querySelector('.theme-icon');
@@ -227,12 +232,6 @@ document.addEventListener('DOMContentLoaded', function() {
         exportBtn.addEventListener('click', exportBookings);
     }
 
-    // Refresh bookings button handler
-    const refreshBtn = document.getElementById('refresh-bookings-btn');
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', refreshResources);
-    }
-
     // Date picker handler for resource view
     const resourceDatePicker = document.getElementById('resource-date');
     if (resourceDatePicker) {
@@ -332,6 +331,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Start auto-refresh every 10 seconds
+    autoRefreshInterval = setInterval(function() {
+        refreshResources(false); // false = no notifications on auto-refresh
+    }, 10000);
+    
+    // Update timestamp display every second
+    refreshTimerInterval = setInterval(updateRefreshTimestamp, 1000);
+    
+    // Initial refresh on load
+    refreshResources(false);
 });
 
 // Export bookings to CSV file
@@ -519,16 +529,14 @@ function loadResources() {
 }
 
 // Refresh resources from JSONbin.io API
-function refreshResources() {
-    const refreshBtn = document.getElementById('refresh-bookings-btn');
-    if (refreshBtn) {
-        refreshBtn.disabled = true;
-        refreshBtn.textContent = '🔄 Loading...';
-    }
-    
+function refreshResources(showNotifications = true) {
     fetchFromAPI()
         .then(function(resources) {
             localStorage.setItem('campus_resources', JSON.stringify(resources));
+            
+            // Update last refresh time
+            lastRefreshTime = Date.now();
+            updateRefreshTimestamp();
             
             if (currentView === 'resources') {
                 renderResources();
@@ -538,23 +546,39 @@ function refreshResources() {
                 renderBookings();
             }
             
-            if (refreshBtn) {
-                refreshBtn.disabled = false;
-                refreshBtn.textContent = '🔄 Refresh Bookings';
+            if (showNotifications) {
+                showNotification('Bookings refreshed successfully!', 'success');
             }
-            
-            showNotification('Bookings refreshed successfully!', 'success');
         })
         .catch(function(error) {
             console.error('Refresh failed:', error);
             
-            if (refreshBtn) {
-                refreshBtn.disabled = false;
-                refreshBtn.textContent = '🔄 Refresh Bookings';
+            if (showNotifications) {
+                showNotification('Failed to refresh. Using local data.', 'error');
             }
-            
-            showNotification('Failed to refresh. Using local data.', 'error');
         });
+}
+
+// Update the refresh timestamp display
+function updateRefreshTimestamp() {
+    const timestampEl = document.getElementById('refresh-timestamp');
+    if (!timestampEl) return;
+    
+    if (!lastRefreshTime) {
+        timestampEl.textContent = 'Checking for updates...';
+        return;
+    }
+    
+    const secondsAgo = Math.floor((Date.now() - lastRefreshTime) / 1000);
+    
+    if (secondsAgo < 5) {
+        timestampEl.textContent = 'Just updated';
+    } else if (secondsAgo < 60) {
+        timestampEl.textContent = `Updated ${secondsAgo} seconds ago`;
+    } else {
+        const minutesAgo = Math.floor(secondsAgo / 60);
+        timestampEl.textContent = `Updated ${minutesAgo} minute${minutesAgo > 1 ? 's' : ''} ago`;
+    }
 }
 
 // Save resources to localStorage and JSONbin.io
@@ -1443,8 +1467,10 @@ function renderQuickActions(container) {
 
 // Render Notifications
 function renderNotifications(container, allBookings, todayDate) {
+    const userData = getUserProfile();
+    const userName = userData ? userData.name : 'Student';
     const todayBookings = allBookings.filter(function(b) {
-        return b.date === todayDate && b.user === 'Student';
+        return b.date === todayDate && b.user === userName;
     });
     
     if (todayBookings.length === 0) return;
@@ -1473,8 +1499,10 @@ function renderTodaySchedule(container, allBookings, todayDate) {
     title.className = 'section-title';
     section.appendChild(title);
     
+    const userData = getUserProfile();
+    const userName = userData ? userData.name : 'Student';
     const todayBookings = allBookings.filter(function(b) {
-        return b.date === todayDate && b.user === 'Student';
+        return b.date === todayDate && b.user === userName;
     });
     
     if (todayBookings.length === 0) {
@@ -1517,8 +1545,10 @@ function renderRecentActivity(container, allBookings) {
     title.className = 'section-title';
     section.appendChild(title);
     
+    const userData = getUserProfile();
+    const userName = userData ? userData.name : 'Student';
     const userBookings = allBookings.filter(function(b) {
-        return b.user === 'Student';
+        return b.user === userName;
     });
     
     userBookings.sort(function(a, b) {
@@ -1681,9 +1711,11 @@ function renderCalendarWidget(container, allBookings) {
     });
     
     // Count bookings per date
+    const userData = getUserProfile();
+    const userName = userData ? userData.name : 'Student';
     const bookingsByDate = {};
     allBookings.forEach(function(b) {
-        if (b.user === 'Student') {
+        if (b.user === userName) {
             if (!bookingsByDate[b.date]) {
                 bookingsByDate[b.date] = [];
             }
