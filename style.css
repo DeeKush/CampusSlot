@@ -1421,6 +1421,7 @@ body.sidebar-open {
     align-items: center;
     gap: 1rem;
     margin-bottom: 1.5rem;
+    color: #1f2937;
 }
 
 .notif-icon {

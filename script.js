@@ -65,24 +65,18 @@ const defaultResources = [
     }
 ];
 
-// Global variable to track the currently active view
 let currentView = 'dashboard';
 
-// Global variable to store the resource ID being booked
 let currentResourceId = null;
 
-// Global variables for slot-based booking
 let startSlot = null;
 let endSlot = null;
 
-// Global variable for selected booking date
 let selectedDate = getTodayDate();
 
-// Global variables for calendar navigation
 let calendarMonth = new Date().getMonth();
 let calendarYear = new Date().getFullYear();
 
-// Global variable for auto-refresh interval
 let autoRefreshInterval = null;
 let lastRefreshTime = null;
 let refreshTimerInterval = null;
@@ -96,7 +90,6 @@ function updateThemeIcon() {
     }
 }
 
-// Wait for the page to load completely
 document.addEventListener('DOMContentLoaded', function() {
 
     // Check if user profile exists, if not show registration modal
@@ -1981,6 +1974,7 @@ function checkAndShowUserRegistration() {
         });
     }
 }
+
 
 
 

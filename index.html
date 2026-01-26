@@ -11,23 +11,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Top Navigation Bar -->
     <nav class="navbar">
-        <!-- Mobile Menu Toggle -->
         <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle menu">
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
         </button>
         
-        <!-- Left: App Name/Logo -->
         <div class="navbar-left">
             <a href="#" class="app-name" data-view="dashboard">
                 <img src="logo.png" alt="CampusSlot" class="logo-img">
             </a>
         </div>
 
-        <!-- Center: Navigation Links -->
         <div class="navbar-center">
             <nav class="navbar-links">
                 <a href="#" class="nav-link" data-view="dashboard">Dashboard</a>
@@ -37,7 +33,6 @@
             </nav>
         </div>
 
-        <!-- Right: User Info -->
         <div class="navbar-right">
             <button id="theme-toggle" class="theme-toggle-btn" title="Toggle theme">
                 <span class="theme-icon">🌙</span>
@@ -47,12 +42,9 @@
         </div>
     </nav>
 
-    <!-- Main Layout Container -->
     <div class="layout-container">
-        <!-- Sidebar Backdrop (Mobile) -->
         <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
         
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <nav class="sidebar-nav">
                 <a href="#" class="sidebar-link active" data-view="dashboard">
@@ -74,15 +66,12 @@
             </nav>
         </aside>
 
-        <!-- Main Content Area -->
         <main class="main-content">
             <div class="content-wrapper">
-                <!-- Dashboard View -->
                 <div id="dashboard-view" class="view-section">
                     <h2>Dashboard</h2>
                 </div>
 
-                <!-- Resources View -->
                 <div id="resources-view" class="view-section hidden">
                     <h2>Browse Resources</h2>
                     <div class="date-selector">
@@ -91,13 +80,11 @@
                     </div>
                 </div>
 
-                <!-- Bookings View -->
                 <div id="bookings-view" class="view-section hidden">
                     <h2>My Bookings</h2>
                     <button id="export-bookings-btn" class="export-btn">Export My Bookings</button>
                 </div>
 
-                <!-- Analytics View -->
                 <div id="analytics-view" class="view-section hidden">
                     <h2>Analytics</h2>
                 </div>
@@ -105,7 +92,7 @@
         </main>
     </div>
 
-    <!-- Booking Modal -->
+    <!-- Modals -->
     <div id="booking-modal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -132,7 +119,6 @@
         </div>
     </div>
 
-    <!-- Terms and Conditions Modal -->
     <div id="terms-modal" class="modal hidden">
         <div class="modal-content terms-modal-content">
             <div class="modal-header">
@@ -185,7 +171,6 @@
         </div>
     </div>
 
-    <!-- User Registration Modal (First-time setup) -->
     <div id="user-registration-modal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
