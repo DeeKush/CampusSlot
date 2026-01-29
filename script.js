@@ -2297,17 +2297,22 @@ function renderDashboard() {
     }
     
     const resources = loadResources();
+    const userData = getUserProfile();
+    const currentUser = userData ? userData.name : 'Student';
     const allBookings = [];
     
     resources.forEach(function(resource) {
         if (resource.bookings) {
             resource.bookings.forEach(function(booking) {
-                allBookings.push({
-                    ...booking,
-                    resourceId: resource.id,
-                    resourceName: resource.name,
-                    resourceType: resource.type
-                });
+                // Only include bookings made by the current user
+                if (booking.user === currentUser) {
+                    allBookings.push({
+                        ...booking,
+                        resourceId: resource.id,
+                        resourceName: resource.name,
+                        resourceType: resource.type
+                    });
+                }
             });
         }
     });
