@@ -1983,26 +1983,14 @@ function handleTimeSlotBooking(resource, resources, errorMsg) {
 
 // Handle quantity-based booking
 function handleQuantityBooking(resource, resources, errorMsg) {
-    const quantityInput = document.getElementById('quantity-input');
     const issueDate = document.getElementById('issue-date');
     
-    if (!quantityInput || !quantityInput.value) {
-        errorMsg.textContent = 'Please specify quantity needed';
-        errorMsg.classList.remove('hidden');
-        return;
-    }
-    
-    const requestedQuantity = parseInt(quantityInput.value);
+    // Default quantity to 1 since quantity selector was removed from modal
+    const requestedQuantity = 1;
     const availableQuantity = calculateAvailableQuantity(resource);
     
     if (requestedQuantity > availableQuantity) {
-        errorMsg.textContent = `Only ${availableQuantity} unit(s) available`;
-        errorMsg.classList.remove('hidden');
-        return;
-    }
-    
-    if (requestedQuantity < 1) {
-        errorMsg.textContent = 'Please enter a valid quantity';
+        errorMsg.textContent = `Equipment not available`;
         errorMsg.classList.remove('hidden');
         return;
     }
