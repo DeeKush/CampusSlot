@@ -1,11 +1,11 @@
 # 🎓 CampusSlot
-### 📅 A Frontend Campus Resource Availability and Booking System
 
----
+> **A Modern Campus Resource Booking System**  
+> Built with Vanilla JavaScript, HTML5, and CSS3
 
-## 📖 Project Description
+## 📖 Overview
 
-CampusSlot is a browser-based web application designed to help students view, book, and manage campus resources. The system supports two types of bookings: time-slot based bookings for rooms and facilities, and quantity-based issuing for equipment. Built entirely with vanilla JavaScript, HTML, and CSS, the application demonstrates comprehensive DOM manipulation and client-side state management without requiring any backend infrastructure.
+CampusSlot is a comprehensive browser-based web application that streamlines campus resource management for students. The system intelligently handles two distinct booking paradigms: time-slot reservations for shared spaces and facilities, and quantity-based equipment issuing with return tracking. Developed entirely with vanilla web technologies, this application showcases advanced DOM manipulation, client-side state management, and modern UX patterns without any framework dependencies.
 
 ---
 
